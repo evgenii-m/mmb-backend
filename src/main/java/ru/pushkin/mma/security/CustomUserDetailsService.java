@@ -22,7 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userService.findByLogin(username);
         return new CustomUserDetails(
                 user.getLogin(), user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName()))
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName())),
+                user.getId()
         );
     }
 }

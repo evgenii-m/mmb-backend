@@ -7,12 +7,21 @@ import java.util.Collection;
 
 public class CustomUserDetails extends User {
 
-    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities) {
+    private String userId;
+
+    public CustomUserDetails(String username, String password, Collection<? extends GrantedAuthority> authorities, String userId) {
         super(username, password, authorities);
+        this.userId = userId;
     }
 
     public CustomUserDetails(String username, String password, boolean enabled, boolean accountNonExpired,
-                             boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities) {
+                             boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities,
+                             String userId) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 }

@@ -25,7 +25,9 @@ public interface DeezerApiService {
 	 *
 	 * @return currentAccessToken (if receiving access token failed, previous access Token value will be returned)
 	 */
-	String getAccessToken(String code);
+	String obtainNewAccessToken(String code);
+
+	String getAccessToken() throws DeezerApiErrorException;
 
 	/**
 	 * Get track object
