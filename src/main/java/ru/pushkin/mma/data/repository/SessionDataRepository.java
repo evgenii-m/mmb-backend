@@ -7,7 +7,7 @@ import ru.pushkin.mma.data.model.SessionData;
 import java.util.List;
 
 @Repository
-public interface SessionDataRepository extends MongoRepository<SessionData, Integer> {
+public interface SessionDataRepository extends MongoRepository<SessionData, String> {
 
     List<SessionData> findByCodeAndUserId(String code, String userId);
 }
