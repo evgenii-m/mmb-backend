@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ru.pushkin.mma.config.ServiceConfig;
-import ru.pushkin.mma.data.SettingsStorage;
+import ru.pushkin.mma.data.SessionsStorage;
 import ru.pushkin.mma.deezer.model.Playlist;
 import ru.pushkin.mma.deezer.model.Playlists;
 import ru.pushkin.mma.deezer.model.Track;
@@ -35,7 +35,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	@Autowired
 	private ServiceConfig serviceConfig;
 	@Autowired
-	private SettingsStorage settingsStorage;
+	private SessionsStorage sessionsStorage;
 
 	private ExecutorService executorService;
 
@@ -50,7 +50,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		Integer deezerApiServiceThreadPoolSize = serviceConfig.getDeezerApiServiceThreadPoolSize();
 		executorService = Executors.newFixedThreadPool(deezerApiServiceThreadPoolSize);
 
-		String accessToken = settingsStorage.getDeezerAccessToken();
+		String accessToken = sessionsStorage.getDeezerAccessToken();
 		if (accessToken != null) {
 			LOG.info("Load Deezer access token from configuration: {}", accessToken);
 			this.currentAccessToken = accessToken;
@@ -96,7 +96,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 
 	@Override
 	public String getAccessToken(String code) {
-		String accessToken = settingsStorage.getDeezerAccessToken();
+		String accessToken = sessionsStorage.getDeezerAccessToken();
 		if (accessToken != null) {
 			LOG.warn("Deezer access token already set in configuration, they will be overwritten: access token = {}", accessToken);
 		}
@@ -105,7 +105,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		if (newAccessToken != null) {
 			LOG.info("Set new Deezer access token: {}", newAccessToken);
 			currentAccessToken = newAccessToken;
-			settingsStorage.saveDeezerAccessToken(currentAccessToken);
+			sessionsStorage.saveDeezerAccessToken(currentAccessToken);
 		} else {
 			LOG.warn("Received empty access token, current user token will not be updated");
 		}
