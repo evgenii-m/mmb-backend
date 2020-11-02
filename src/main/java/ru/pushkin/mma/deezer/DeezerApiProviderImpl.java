@@ -327,9 +327,9 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 	}
 
 	@Override
-	public Tracks getFavoriteTracks(String accessToken) {
+	public Tracks getFavoriteTracks(String accessToken, int page, int limit) {
 		Map<DeezerApiParam, String> requestParameters = new HashMap<>();
-		putBaseRequestParameters(requestParameters, accessToken, null, null);
+		putBaseRequestParameters(requestParameters, accessToken, page, limit);
 
 		String methodPath = DeezerApiMethod.USER_FAVORITES.getValue();
 		String responseContent = makeApiRequest(methodPath, DeezerApiMethod.USER_FAVORITES.getMethodType(), requestParameters);

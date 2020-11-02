@@ -20,7 +20,7 @@ public class LibraryService {
     private TrackMapper trackMapper;
 
     public FavoriteTracksResponse findFavoriteTracks(int page, int size) {
-        List<Track> deezerFavoriteTracks = deezerApiService.getFavoriteTracks();
+        List<Track> deezerFavoriteTracks = deezerApiService.getFavoriteTracks(page, size);
 
         int totalSize = deezerFavoriteTracks.size();
         int startIndex = page * size;

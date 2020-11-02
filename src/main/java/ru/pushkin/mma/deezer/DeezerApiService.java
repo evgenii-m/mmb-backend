@@ -61,7 +61,7 @@ public interface DeezerApiService {
 
 	List<Track> searchTracksQuery(String shortQuery, String extendedQuery) throws DeezerApiErrorException;
 
-	List<Track> getFavoriteTracks();
+	List<Track> getFavoriteTracks(int page, int limit);
 
 	boolean addTrackToFavorites(long trackId) throws DeezerApiErrorException;
 

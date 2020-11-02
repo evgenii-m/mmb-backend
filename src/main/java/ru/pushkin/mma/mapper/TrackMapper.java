@@ -4,8 +4,9 @@ import org.springframework.stereotype.Component;
 import ru.pushkin.mma.api.output.dto.TrackDto;
 import ru.pushkin.mma.deezer.model.Track;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.TimeZone;
 
 
 @Component
@@ -19,7 +20,9 @@ public class TrackMapper {
                 .title(source.getTitle())
                 .album(source.getAlbum().getTitle())
                 .length(source.getDuration())
-                .added(LocalDateTime.ofInstant(source.getTime_add().toInstant(), ZoneId.systemDefault()))
+                .added(
+                        LocalDateTime.ofInstant(Instant.ofEpochSecond(source.getTime_add().getTime()), TimeZone.getDefault().toZoneId())
+                )
                 .sourceLink(source.getLink())
                 .build();
     }
