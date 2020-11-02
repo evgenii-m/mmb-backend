@@ -13,6 +13,7 @@ public enum DeezerApiMethod {
 
 	USER_PLAYLISTS("/user/me/playlists", DeezerApiRequestMethodType.GET),
 	USER_PLAYLIST_CREATE("/user/me/playlists", DeezerApiRequestMethodType.POST),
+	USER_FAVORITES("/user/me/tracks", DeezerApiRequestMethodType.GET),
 	USER_FAVORITES_ADD_TRACK("/user/me/tracks", DeezerApiRequestMethodType.POST),
 	USER_FAVORITES_REMOVE_TRACK("/user/me/tracks", DeezerApiRequestMethodType.DELETE)
 	;
@@ -33,7 +34,7 @@ public enum DeezerApiMethod {
 		return methodType;
 	}
 
-	public String formate(Object... args) {
+	public String format(Object... args) {
 		return String.format(value, args);
 	}
 

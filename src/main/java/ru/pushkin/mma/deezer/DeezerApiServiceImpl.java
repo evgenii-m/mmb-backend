@@ -265,6 +265,13 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	}
 
 	@Override
+	public List<Track> getFavoriteTracks() {
+		String currentAccessToken = getAccessToken();
+		return deezerApiProvider.getFavoriteTracks(currentAccessToken).getData();
+	}
+
+
+	@Override
 	public boolean addTrackToFavorites(long trackId) throws DeezerApiErrorException {
 		String currentAccessToken = getAccessToken();
 		return deezerApiProvider.addTrackToFavorites(trackId, currentAccessToken);

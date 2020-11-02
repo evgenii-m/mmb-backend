@@ -34,7 +34,7 @@ public class AuthorizationController {
     private DeezerApiService deezerApiService;
 
 
-    @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> registerUser(@RequestBody @Valid RegistrationRequest registrationRequest) {
         User user = userService.saveUser(registrationRequest.getLogin(), registrationRequest.getPassword());
         return ResponseEntity.ok(user.getId());
