@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import ru.pushkin.mmb.config.ServiceConfig;
+import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Playlists;
 import ru.pushkin.mmb.deezer.model.Track;
@@ -49,7 +49,7 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 	private final CloseableHttpClient httpClient;
 
 	@Autowired
-	private ServiceConfig serviceConfig;
+	private ServicePropertyConfig servicePropertyConfig;
 
 	private String deezerAppId;
 	private String deezerAppSecretKey;
@@ -65,8 +65,8 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 
 	@PostConstruct
 	public void init() {
-		deezerAppId = serviceConfig.getDeezerApplicationApiId();
-		deezerAppSecretKey = serviceConfig.getDeezerApplicationApiSecretKey();
+		deezerAppId = servicePropertyConfig.getDeezerApplicationApiId();
+		deezerAppSecretKey = servicePropertyConfig.getDeezerApplicationApiSecretKey();
 	}
 
 	@Override

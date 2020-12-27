@@ -2,16 +2,19 @@ package ru.pushkin.mmb.security;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.security.core.context.SecurityContextHolder;
+import ru.pushkin.mmb.security.token.context.UserTokenContext;
+
 
 @UtilityClass
 public class SecurityHelper {
 
     public String getUserIdFromToken() {
-        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return userDetails.getUserId();
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserTokenContext) {
+            UserTokenContext tokenContext =
+                    (UserTokenContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return tokenContext.getUserId();
         } else {
-            return null;
+            throw new CustomSecurityException("UserToken не задан");
         }
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "service-config")
 @Getter
 @Setter
-public class ServiceConfig {
+public class ServicePropertyConfig {
     private String deezerApplicationName;
     private String deezerApplicationApiId;
     private String deezerApplicationApiSecretKey;

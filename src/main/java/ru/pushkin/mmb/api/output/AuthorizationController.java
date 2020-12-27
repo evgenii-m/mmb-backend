@@ -1,7 +1,7 @@
 package ru.pushkin.mmb.api.output;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,23 +15,20 @@ import ru.pushkin.mmb.api.output.response.AuthResponse;
 import ru.pushkin.mmb.data.model.User;
 import ru.pushkin.mmb.deezer.DeezerApiErrorException;
 import ru.pushkin.mmb.deezer.DeezerApiService;
-import ru.pushkin.mmb.security.JwtProvider;
-import ru.pushkin.mmb.security.SecurityHelper;
+import ru.pushkin.mmb.security.JwtTokenProvider;
 import ru.pushkin.mmb.security.UserService;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @Log
+@RequiredArgsConstructor
 @RestController
 public class AuthorizationController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private JwtProvider jwtProvider;
-
-    @Autowired
-    private DeezerApiService deezerApiService;
+    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final DeezerApiService deezerApiService;
 
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -42,12 +39,13 @@ public class AuthorizationController {
 
     @PostMapping(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
-        User user = userService.findByLoginAndPassword(request.getLogin(), request.getPassword());
-        if (user == null) {
+        Optional<User> user = userService.findByLoginAndPassword(request.getLogin(), request.getPassword());
+        if (user.isPresent()) {
+            String token = jwtTokenProvider.generateUserToken(user.get().getLogin());
+            return ResponseEntity.ok(new AuthResponse(user.get().getId(), token));
+        } else {
             return ResponseEntity.notFound().build();
         }
-        String token = jwtProvider.generateToken(user.getLogin());
-        return ResponseEntity.ok(new AuthResponse(user.getId(), token));
     }
 
     @GetMapping("/auth/deezer")

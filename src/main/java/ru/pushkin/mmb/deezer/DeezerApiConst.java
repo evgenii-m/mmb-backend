@@ -2,7 +2,7 @@ package ru.pushkin.mmb.deezer;
 
 public interface DeezerApiConst {
 
-	String DEEZER_API_DEFAULT_REDIRECT_URI = "http://localhost:8888";
+	String DEEZER_API_DEFAULT_REDIRECT_URI = "http://localhost:8081/auth/deezer/token";
 	String DEEZER_API_AUTH_BASE_URL = "https://connect.deezer.com/oauth/auth.php" +
 			"?app_id=%s&redirect_uri=%s&perms=%s";
 	String DEEZER_API_ACCESS_TOKEN_BASE_URL = "https://connect.deezer.com/oauth/access_token.php" +

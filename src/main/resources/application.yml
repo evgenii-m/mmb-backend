@@ -1,8 +1,10 @@
+server:
+  port: 8081
 
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/mma_data
+      uri: mongodb://localhost:27017/mmb_data
 
 jasypt:
   encryptor:
@@ -11,7 +13,7 @@ jasypt:
 
 
 service-config:
-  deezer-application-name: CAudioPlayer
+  deezer-application-name: MyMusicBox
   deezer-application-api-id: 366404
   deezer-application-api-secret-key: ENC(X0KPGneqVJZnvPkKk9f6tRuztYEsLhFMXUxB8axU93mOqPrVZyyxZPRrN2fMYDA9)
   deezer-api-service-thread-pool-size: 50

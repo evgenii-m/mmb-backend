@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import ru.pushkin.mmb.config.ServiceConfig;
+import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.SessionsStorage;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Playlists;
@@ -34,7 +34,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	@Autowired
 	private DeezerApiProvider deezerApiProvider;
 	@Autowired
-	private ServiceConfig serviceConfig;
+	private ServicePropertyConfig servicePropertyConfig;
 	@Autowired
 	private SessionsStorage sessionsStorage;
 
@@ -46,7 +46,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 
 	@PostConstruct
 	public void init() {
-		Integer deezerApiServiceThreadPoolSize = serviceConfig.getDeezerApiServiceThreadPoolSize();
+		Integer deezerApiServiceThreadPoolSize = servicePropertyConfig.getDeezerApiServiceThreadPoolSize();
 		executorService = Executors.newFixedThreadPool(deezerApiServiceThreadPoolSize);
 	}
 

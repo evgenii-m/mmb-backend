@@ -1,11 +1,12 @@
 package ru.pushkin.mmb.data.enumeration;
 
-public enum UserRoleCode {
-    ROLE_USER("ROLE_USER");
+public enum SecurityRoleCode {
+    UNAUTHORIZED("ROLE_UNAUTHORIZED"),
+    USER("ROLE_USER");
 
     private String code;
 
-    UserRoleCode(String code) {
+    SecurityRoleCode(String code) {
         this.code = code;
     }
 
