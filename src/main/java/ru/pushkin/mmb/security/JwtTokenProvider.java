@@ -48,10 +48,10 @@ public class JwtTokenProvider {
     public String generateUserToken(String userId) {
         Instant now = timeProvider.nowDate().atStartOfDay(ZoneId.systemDefault()).toInstant();
         UserTokenContext tokenContext = new UserTokenContext(
+                userId,
                 UUID.randomUUID().toString(),
                 SecurityRoleCode.USER.getCode(),
-                "",
-                userId
+                ""
         );
         return tokenService.createEncryptedToken(tokenContext, now, jwtPropertyConfig.getExpirationTime(), privateKey);
     }

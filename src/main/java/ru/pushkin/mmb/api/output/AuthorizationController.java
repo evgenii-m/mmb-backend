@@ -5,10 +5,7 @@ import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.pushkin.mmb.api.output.request.AuthRequest;
 import ru.pushkin.mmb.api.output.request.RegistrationRequest;
 import ru.pushkin.mmb.api.output.response.AuthResponse;
@@ -16,6 +13,7 @@ import ru.pushkin.mmb.data.model.User;
 import ru.pushkin.mmb.deezer.DeezerApiErrorException;
 import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.security.JwtTokenProvider;
+import ru.pushkin.mmb.security.SecurityHelper;
 import ru.pushkin.mmb.security.UserService;
 
 import javax.validation.Valid;
@@ -54,6 +52,16 @@ public class AuthorizationController {
     }
 
 
+    @GetMapping("/auth/deezer/token/new")
+    public ResponseEntity<String> authDeezerByToken(@RequestParam String code) {
+        try {
+            String accessToken = deezerApiService.obtainNewAccessToken(code);
+            return ResponseEntity.ok(accessToken);
+        } catch (DeezerApiErrorException e) {
+            log.severe(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     @GetMapping("/auth/deezer/token")
     public ResponseEntity<String> getDeezerAuthToken() {
         try {
@@ -63,11 +71,5 @@ public class AuthorizationController {
             log.severe(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    @PostMapping("/auth/deezer/token")
-    public ResponseEntity<String> authDeezerByToken(@RequestBody String code) {
-        String accessToken = deezerApiService.obtainNewAccessToken(code);
-        return ResponseEntity.ok(accessToken);
     }
 }

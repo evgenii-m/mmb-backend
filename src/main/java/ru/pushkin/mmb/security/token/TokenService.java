@@ -34,10 +34,10 @@ public class TokenService {
 
     public TokenContext createUserTokenContext(Claims claims) {
         return new UserTokenContext(
+                claims.get(JwtTokenConstants.CLAIMS_USER_ID, String.class),
                 claims.get(Claims.ID, String.class),
                 claims.get(JwtTokenConstants.CLAIMS_ROLE, String.class),
-                claims.get(JwtTokenConstants.CLAIMS_IP, String.class),
-                claims.get(JwtTokenConstants.CLAIMS_USER_ID, String.class)
+                claims.get(JwtTokenConstants.CLAIMS_IP, String.class)
         );
     }
 

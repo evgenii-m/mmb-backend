@@ -102,7 +102,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 			return newAccessToken;
 		} else {
 			LOG.warn("Received empty access token, current user token will not be updated");
-			return accessToken;
+			throw new DeezerApiErrorException();
 		}
 	}
 

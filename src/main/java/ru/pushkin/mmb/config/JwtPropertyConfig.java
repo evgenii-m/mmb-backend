@@ -36,6 +36,11 @@ public class JwtPropertyConfig {
         private String algorithm;
         @NotNull
         private String jwk;
+        @NotNull
+        private String jwkPassword;
+        @NotNull
+        private String jwkSalt;
+
     }
 
 }

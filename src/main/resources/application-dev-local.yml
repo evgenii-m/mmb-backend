@@ -7,3 +7,5 @@ mmb.jwt:
     enabled: true
     algorithm: ENC(L/akooYCkZeTtrho/7cMOKC/mX3USY3X)
     jwk: ENC(aA8N8h8penQVf20YfNA1JntoTBqLDoZa2DlYbehlNc0aIRRN4aKMaDjTK07sxe5PUkR4+NTtSmz5sNNeT11u/ZF7BBcgQFEZ)
+    jwk-password: ENC(cNMgI37TAUlJaJjGKoqbCjmDMN/r7Klh)
+    jwk-salt: 90ABBC629F72C3F0

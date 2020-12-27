@@ -9,9 +9,9 @@ import ru.pushkin.mmb.security.token.context.UserTokenContext;
 public class SecurityHelper {
 
     public String getUserIdFromToken() {
-        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserTokenContext) {
+        if (SecurityContextHolder.getContext().getAuthentication().getDetails() instanceof UserTokenContext) {
             UserTokenContext tokenContext =
-                    (UserTokenContext) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                    (UserTokenContext) SecurityContextHolder.getContext().getAuthentication().getDetails();
             return tokenContext.getUserId();
         } else {
             throw new CustomSecurityException("UserToken не задан");

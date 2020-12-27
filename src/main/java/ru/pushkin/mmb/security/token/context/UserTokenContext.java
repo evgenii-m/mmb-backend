@@ -12,7 +12,7 @@ import ru.pushkin.mmb.security.JwtTokenConstants;
 public class UserTokenContext extends TokenContext {
     private final String userId;
 
-    public UserTokenContext(String tokenId, String role, String clientIp, String userId) {
+    public UserTokenContext(String userId, String tokenId, String role, String clientIp) {
         super(tokenId, role, clientIp);
         this.userId = userId;
     }
