@@ -7,7 +7,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-@ComponentScan(basePackages = "ru.pushkin.mmb")
 public class ApplicationConfiguration {
 
     @Bean

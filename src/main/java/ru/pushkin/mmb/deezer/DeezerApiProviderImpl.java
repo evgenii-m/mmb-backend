@@ -1,11 +1,7 @@
 package ru.pushkin.mmb.deezer;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -58,12 +54,14 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 		PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
 		cm.setMaxTotal(200);
 		cm.setDefaultMaxPerRoute(20);
+
 		this.httpClient = HttpClients.custom()
 				.setConnectionManager(cm)
 				.build();
+
 	}
 
-	@PostConstruct
+    @PostConstruct
 	public void init() {
 		deezerAppId = servicePropertyConfig.getDeezerApplicationApiId();
 		deezerAppSecretKey = servicePropertyConfig.getDeezerApplicationApiSecretKey();
@@ -79,14 +77,15 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 		LOG.debug("api request: {}", request);
 
 		try {
-			HttpResponse response = httpClient.execute(request);
-			LOG.debug("api response: {}", response);
-			// process response
-			int statusCode = response.getStatusLine().getStatusCode();
-			if (HttpStatus.SC_OK == statusCode) {
-				String responseContent = StreamUtils.readStreamAsOneString(response.getEntity().getContent());
-				LOG.debug("response content: {}", responseContent);
-				return responseContent;
+			try (CloseableHttpResponse response = httpClient.execute(request)) {
+				LOG.debug("api response: {}", response);
+				// process response
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (HttpStatus.SC_OK == statusCode) {
+					String responseContent = StreamUtils.readStreamAsOneString(response.getEntity().getContent());
+					LOG.debug("response content: {}", responseContent);
+					return responseContent;
+				}
 			}
 		} catch (IOException e) {
 			LOG.error("http request error: request = {}, exception = {}", request, e);
