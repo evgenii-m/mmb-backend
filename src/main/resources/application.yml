@@ -11,6 +11,14 @@ jasypt:
     algorithm: PBEWithMD5AndDES
     iv-generator-classname: org.jasypt.iv.NoIvGenerator
 
+logging:
+  pattern:
+    console: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level %logger : %msg%n"
+    file: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level [%thread] %logger : %msg%n"
+  level:
+    ru.pushkin.mmb: DEBUG
+  file:
+    name: logs/server.log
 
 service-config:
   deezer-application-name: MyMusicBox
