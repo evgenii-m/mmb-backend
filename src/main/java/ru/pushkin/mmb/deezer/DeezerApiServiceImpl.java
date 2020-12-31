@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.SessionsStorage;
+import ru.pushkin.mmb.data.enumeration.SessionTypeCode;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Playlists;
 import ru.pushkin.mmb.deezer.model.Track;
@@ -86,13 +87,13 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		String userId = SecurityHelper.getUserIdFromToken();
 		String accessToken = sessionsStorage.getDeezerAccessToken(userId);
 		if (accessToken != null) {
-			log.warn("Deezer access token already set in configuration, they will be overwritten: access token = {}", accessToken);
+			log.warn("Deezer access token already set in storage, they will be overwritten: userId = {}", userId);
 		}
 
 		String newAccessToken = deezerApiProvider.getAccessToken(code);
 		if (newAccessToken != null) {
-			log.info("Set new Deezer access token: {}", newAccessToken);
-			sessionsStorage.saveDeezerAccessToken(userId, newAccessToken);
+			log.info("Set new Deezer access token: userId = {}", userId);
+			sessionsStorage.saveSessionData(SessionTypeCode.DEEZER_ACCESS_TOKEN, userId, newAccessToken);
 			return newAccessToken;
 		} else {
 			log.warn("Received empty access token, current user token will not be updated");
@@ -276,7 +277,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		String userId = SecurityHelper.getUserIdFromToken();
 		String accessToken = sessionsStorage.getDeezerAccessToken(userId);
 		if (accessToken == null) {
-			throw new DeezerApiErrorException("Access token not defined.");
+			throw new SecurityException("Deezer access token not defined.");
 		}
 		return accessToken;
 	}

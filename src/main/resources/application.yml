@@ -26,3 +26,12 @@ service-config:
   deezer-application-api-secret-key: ENC(X0KPGneqVJZnvPkKk9f6tRuztYEsLhFMXUxB8axU93mOqPrVZyyxZPRrN2fMYDA9)
   deezer-api-service-thread-pool-size: 50
   deezer-application-monthly-playlist-title-format: yyyy-MM
+
+  last-fm:
+    application-name: Test Music Library
+    application-api-key: ENC(iDmLT+3Z1IOmbU+fVuSlE2MafLT0zgM7VT33xNv2vTXtiuMvkGdOnJq7uD8rYcaB)
+    application-api-shared-secret: ENC(XIpwAsBnBmNjrp5L/2+OeZfcVTex9KoXyUg78dY6fbjBDfo/ZxuQvPS/D2aYGbOU)
+    application-account: pushkin_kaz
+    redirect-url: http://localhost:8081/auth/lastfm/session/
+    retry-timeout-sec: 1
+    session-retry-count: 2

@@ -1,7 +1,7 @@
 package ru.pushkin.mmb.api.output;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,14 +12,15 @@ import ru.pushkin.mmb.api.output.response.AuthResponse;
 import ru.pushkin.mmb.data.model.User;
 import ru.pushkin.mmb.deezer.DeezerApiErrorException;
 import ru.pushkin.mmb.deezer.DeezerApiService;
+import ru.pushkin.mmb.lastfm.LastFmApiErrorException;
+import ru.pushkin.mmb.lastfm.LastFmService;
 import ru.pushkin.mmb.security.JwtTokenProvider;
-import ru.pushkin.mmb.security.SecurityHelper;
 import ru.pushkin.mmb.security.UserService;
 
 import javax.validation.Valid;
 import java.util.Optional;
 
-@Log
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class AuthorizationController {
@@ -27,6 +28,7 @@ public class AuthorizationController {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final DeezerApiService deezerApiService;
+    private final LastFmService lastFmService;
 
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -46,30 +48,32 @@ public class AuthorizationController {
         }
     }
 
+
     @GetMapping("/auth/deezer")
     public ResponseEntity<String> getDeezerAuthPageUrl() {
         return ResponseEntity.ok(deezerApiService.getUserAuthorizationPageUrl());
     }
 
 
-    @GetMapping("/auth/deezer/token/new")
-    public ResponseEntity<String> authDeezerByToken(@RequestParam String code) {
-        try {
-            String accessToken = deezerApiService.obtainNewAccessToken(code);
-            return ResponseEntity.ok(accessToken);
-        } catch (DeezerApiErrorException e) {
-            log.severe(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
     @GetMapping("/auth/deezer/token")
-    public ResponseEntity<String> getDeezerAuthToken() {
-        try {
-            String accessToken = deezerApiService.getAccessToken();
-            return ResponseEntity.ok(accessToken);
-        } catch (DeezerApiErrorException e) {
-            log.severe(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<String> getDeezerAccessToken(@RequestParam(required = false) String code) {
+        return Utils.handleExceptions(() -> code != null ?
+                ResponseEntity.ok(deezerApiService.obtainNewAccessToken(code)) :
+                ResponseEntity.ok(deezerApiService.getAccessToken())
+        );
     }
+
+
+    @GetMapping("/auth/lastfm")
+    public ResponseEntity<String> getLastFmAuthPageUrl() {
+        return ResponseEntity.ok(lastFmService.formUserAuthorizationPageUrl());
+    }
+
+    @GetMapping("/auth/lastfm/session")
+    public ResponseEntity<String> getLastFmSessionKey(@RequestParam(required = false) String token) {
+        return Utils.handleExceptions(() -> token != null ?
+                ResponseEntity.ok(lastFmService.obtainNewSessionKey(token)) :
+                ResponseEntity.ok(lastFmService.getSessionKey()));
+    }
+
 }

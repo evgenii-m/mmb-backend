@@ -17,5 +17,20 @@ public class ServicePropertyConfig {
     private String deezerApplicationApiSecretKey;
     private Integer deezerApiServiceThreadPoolSize;
     private String deezerApplicationMonthlyPlaylistTitleFormat;
+    private LastFm lastFm = new LastFm();
 
+    @Component
+    @EnableConfigurationProperties
+    @ConfigurationProperties(prefix = "last-fm")
+    @Getter
+    @Setter
+    public static class LastFm {
+        private String applicationName;
+        private String applicationApiKey;
+        private String applicationApiSharedSecret;
+        private String applicationAccount;
+        private String redirectUrl;
+        private Integer retryTimeoutSec;
+        private Integer sessionRetryCount;
+    }
 }
