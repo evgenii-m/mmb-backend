@@ -28,7 +28,6 @@ public class ServicePropertyConfig {
         private String applicationName;
         private String applicationApiKey;
         private String applicationApiSharedSecret;
-        private String applicationAccount;
         private String redirectUrl;
         private Integer retryTimeoutSec;
         private Integer sessionRetryCount;

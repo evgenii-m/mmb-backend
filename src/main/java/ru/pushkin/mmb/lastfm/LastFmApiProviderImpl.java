@@ -145,7 +145,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         }
 
         try {
-            String response = makeApiGetRequest(method, methodParameters);
+            String response = makeApiRequest(method, methodParameters, 0, false, HttpGet::new);
             if (response != null) {
                 LastFmResponse lastFmResponse = XmlUtils.unmarshalDocumnet(response, LastFmResponse.class.getPackage().getName());
                 if (validateLastFmResponse(lastFmResponse)) {
@@ -266,31 +266,89 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         return Optional.empty();
     }
 
+    /**
+     * See https://www.last.fm/api/show/user.getInfo
+     */
+    @Override
+    public Optional<User> userGetInfo(String user) {
+        LastFmApiMethod method = LastFmApiMethod.USER_GET_INFO;
+        Map<String, String> methodParameters = new HashMap<>();
+
+        methodParameters.put(LastFmApiParam.USER.getName(), user);
+
+        try {
+            String response = makeApiRequest(method, methodParameters, 0, false, HttpGet::new);
+            if (response != null) {
+                LastFmResponse lastFmResponse = XmlUtils.unmarshalDocumnet(response, LastFmResponse.class.getPackage().getName());
+                if (validateLastFmResponse(lastFmResponse)) {
+                    User responseUser = lastFmResponse.getUser();
+                    log.debug("obtained user: {}", responseUser);
+                    return Optional.ofNullable(responseUser);
+                }
+            }
+        } catch (JAXBException e) {
+            log.error("parsing xml from response error: ", e);
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<LovedTracks> userGetLovedTracks(@NotNull String username, Integer page, Integer limit) {
+        LastFmApiMethod method = LastFmApiMethod.USER_GET_LOVED_TRACKS;
+        Map<String, String> methodParameters = new HashMap<>();
+        methodParameters.put(LastFmApiParam.USER.getName(), username);
+        if (limit != null) {
+            methodParameters.put(LastFmApiParam.LIMIT.getName(), limit.toString());
+        }
+        if (page != null) {
+            methodParameters.put(LastFmApiParam.PAGE.getName(), String.valueOf(page));
+        }
+
+        try {
+            String response = makeApiRequest(method, methodParameters, 0, false, HttpGet::new);
+            if (response != null) {
+                LastFmResponse lastFmResponse = XmlUtils.unmarshalDocumnet(response, LastFmResponse.class.getPackage().getName());
+                if (validateLastFmResponse(lastFmResponse)) {
+                    LovedTracks lovedTracks = lastFmResponse.getLovedTracks();
+                    log.debug("obtained loved tracks: {}", lovedTracks);
+                    return Optional.ofNullable(lovedTracks);
+                }
+            }
+        } catch (JAXBException e) {
+            log.error("parsing xml from response error: ", e);
+        }
+
+        return Optional.empty();
+    }
+
     private String makeApiGetRequest(LastFmApiMethod method, Map<String, String> methodParameters) {
-        return makeApiRequest(method, methodParameters, 0, HttpGet::new);
+        return makeApiRequest(method, methodParameters, 0, true, HttpGet::new);
     }
 
     private String makeApiGetRequest(LastFmApiMethod method, Map<String, String> methodParameters, int retryCount) {
-        return makeApiRequest(method, methodParameters, retryCount, HttpGet::new);
+        return makeApiRequest(method, methodParameters, retryCount, true, HttpGet::new);
     }
 
     private String makeApiPostRequest(LastFmApiMethod method, Map<String, String> methodParameters) {
-        return makeApiRequest(method, methodParameters, 0, HttpPost::new);
+        return makeApiRequest(method, methodParameters, 0, true, HttpPost::new);
     }
 
     private String makeApiPostRequest(LastFmApiMethod method, Map<String, String> methodParameters, int retryCount) {
-        return makeApiRequest(method, methodParameters, retryCount, HttpPost::new);
+        return makeApiRequest(method, methodParameters, retryCount, true, HttpPost::new);
     }
 
     private <T extends HttpRequestBase> String makeApiRequest(LastFmApiMethod method, Map<String, String> methodParameters,
-                                                              int retryCount, Function<URI, T> constructRequestFunction) {
+                                                              int retryCount, boolean setSignature, Function<URI, T> constructRequestFunction) {
         // append parameters required for all methods
         methodParameters.put(LastFmApiParam.METHOD_NAME.getName(), method.getName());
         methodParameters.put(LastFmApiParam.API_KEY.getName(), servicePropertyConfig.getLastFm().getApplicationApiKey());
 
         // calculate signature for method parameters
-        String methodSignature = getApiMethodSignature(methodParameters);
-        methodParameters.put(LastFmApiParam.API_SIG.getName(), methodSignature);
+        if (setSignature) {
+            String methodSignature = getApiMethodSignature(methodParameters);
+            methodParameters.put(LastFmApiParam.API_SIG.getName(), methodSignature);
+        }
 
         // make request
         baseApiUriBuilder.clearParameters();

@@ -17,6 +17,9 @@ public class TrackInfo implements Serializable {
 	private String name;
 
 	@XmlElement
+	private Date date;
+
+	@XmlElement
 	private String url;
 
 	@XmlElement
@@ -64,6 +67,14 @@ public class TrackInfo implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public String getUrl() {

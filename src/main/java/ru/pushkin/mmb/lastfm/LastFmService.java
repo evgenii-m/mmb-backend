@@ -5,9 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.SessionsStorage;
-import ru.pushkin.mmb.data.enumeration.SessionTypeCode;
+import ru.pushkin.mmb.data.enumeration.SessionDataCode;
+import ru.pushkin.mmb.lastfm.model.LovedTracks;
+import ru.pushkin.mmb.lastfm.model.TrackInfo;
+import ru.pushkin.mmb.lastfm.model.User;
 import ru.pushkin.mmb.security.SecurityHelper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -31,7 +35,7 @@ public class LastFmService {
     /**
      * See https://www.last.fm/api/webauth
      */
-    public String obtainNewSessionKey(String token) {
+    public String obtainNewSessionKey(String token, String username) {
         String userId = SecurityHelper.getUserIdFromToken();
         String lastFmSessionKey = sessionsStorage.getLastFmSessionKey(userId);
         if (lastFmSessionKey != null) {
@@ -41,7 +45,11 @@ public class LastFmService {
         Optional<String> sessionKey = lastFmApiProvider.authGetSession(token);
         if (sessionKey.isPresent()) {
             log.info("Set new LastFm session: userId = {}", userId);
-            sessionsStorage.saveSessionData(SessionTypeCode.LAST_FM_SESSION_KEY, userId, sessionKey.get());
+            sessionsStorage.saveSessionData(SessionDataCode.LAST_FM_SESSION_KEY, userId, sessionKey.get());
+            Optional<User> user = lastFmApiProvider.userGetInfo(username);
+            if (user.isPresent()) {
+                sessionsStorage.saveSessionData(SessionDataCode.LAST_FM_USERNAME, userId, user.get().getName());
+            }
             return sessionKey.get();
         } else {
             log.warn("Received empty session key, current user session will not be updated");
@@ -60,5 +68,14 @@ public class LastFmService {
             throw new SecurityException("LastFm session key not defined.");
         }
         return sessionKey;
+    }
+
+    public List<TrackInfo> getFavoriteTracks(int page, int limit) {
+        String userId = SecurityHelper.getUserIdFromToken();
+        String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
+        return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page + 1, limit)
+                .map(LovedTracks::getTracks)
+                .orElse(List.of());
+
     }
 }

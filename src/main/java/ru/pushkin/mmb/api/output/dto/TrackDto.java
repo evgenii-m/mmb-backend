@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class TrackDto {
-    @NotNull
     private String uuid;
     private Number number;
     @NotNull

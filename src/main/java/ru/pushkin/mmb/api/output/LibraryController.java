@@ -19,7 +19,7 @@ public class LibraryController {
     private final LibraryService libraryService;
 
 
-    @GetMapping(value = "/deezer/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FavoriteTracksResponse> getFavoriteTracks(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "50") int size

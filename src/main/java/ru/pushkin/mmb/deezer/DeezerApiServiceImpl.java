@@ -3,14 +3,11 @@ package ru.pushkin.mmb.deezer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.SessionsStorage;
-import ru.pushkin.mmb.data.enumeration.SessionTypeCode;
+import ru.pushkin.mmb.data.enumeration.SessionDataCode;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Playlists;
 import ru.pushkin.mmb.deezer.model.Track;
@@ -93,7 +90,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		String newAccessToken = deezerApiProvider.getAccessToken(code);
 		if (newAccessToken != null) {
 			log.info("Set new Deezer access token: userId = {}", userId);
-			sessionsStorage.saveSessionData(SessionTypeCode.DEEZER_ACCESS_TOKEN, userId, newAccessToken);
+			sessionsStorage.saveSessionData(SessionDataCode.DEEZER_ACCESS_TOKEN, userId, newAccessToken);
 			return newAccessToken;
 		} else {
 			log.warn("Received empty access token, current user token will not be updated");

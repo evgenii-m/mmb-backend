@@ -70,9 +70,12 @@ public class AuthorizationController {
     }
 
     @GetMapping("/auth/lastfm/session")
-    public ResponseEntity<String> getLastFmSessionKey(@RequestParam(required = false) String token) {
+    public ResponseEntity<String> getLastFmSessionKey(
+            @RequestParam(required = false) String token,
+            @RequestParam(required = false) String username
+    ) {
         return Utils.handleExceptions(() -> token != null ?
-                ResponseEntity.ok(lastFmService.obtainNewSessionKey(token)) :
+                ResponseEntity.ok(lastFmService.obtainNewSessionKey(token, username)) :
                 ResponseEntity.ok(lastFmService.getSessionKey()));
     }
 

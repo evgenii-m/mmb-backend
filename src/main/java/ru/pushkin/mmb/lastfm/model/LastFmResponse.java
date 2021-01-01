@@ -23,6 +23,12 @@ public class LastFmResponse implements Serializable {
 	@XmlElement(name = "scrobbles")
 	private ScrobblesResult scrobblesResult;
 
+	@XmlElement(name = "lovedtracks")
+	private LovedTracks lovedTracks;
+
+	@XmlElement(name = "user")
+	private User user;
+
 
 	public LastFmResponse() {
 	}
@@ -67,24 +73,32 @@ public class LastFmResponse implements Serializable {
 		this.scrobblesResult = scrobblesResult;
 	}
 
+	public LovedTracks getLovedTracks() {
+		return lovedTracks;
+	}
+
+	public void setLovedTracks(LovedTracks lovedTracks) {
+		this.lovedTracks = lovedTracks;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("LastFmResponse{status='" + status + '\'');
-
-		if (recentTracks != null) {
-			sb.append(", recentTracks='" + recentTracks + "'");
-		}
-		if (trackInfo != null) {
-			sb.append(", trackInfo='" + trackInfo + "'");
-		}
-		if (updateNowPlayingResult != null) {
-			sb.append(", updateNowPlayingResult='" + updateNowPlayingResult + "'");
-		}
-		if (scrobblesResult != null) {
-			sb.append(", scrobblesResult='" + scrobblesResult + "'");
-		}
-
-		sb.append('}');
-		return sb.toString();
+		return "LastFmResponse{" +
+				"status='" + status + '\'' +
+				", recentTracks=" + recentTracks +
+				", trackInfo=" + trackInfo +
+				", updateNowPlayingResult=" + updateNowPlayingResult +
+				", scrobblesResult=" + scrobblesResult +
+				", lovedTracks=" + lovedTracks +
+				", user=" + user +
+				'}';
 	}
 }

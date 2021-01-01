@@ -1,10 +1,6 @@
 package ru.pushkin.mmb.lastfm;
 
-import ru.pushkin.mmb.data.model.SessionData;
-import ru.pushkin.mmb.lastfm.model.RecentTracks;
-import ru.pushkin.mmb.lastfm.model.ScrobblesResult;
-import ru.pushkin.mmb.lastfm.model.TrackInfo;
-import ru.pushkin.mmb.lastfm.model.UpdateNowPlayingResult;
+import ru.pushkin.mmb.lastfm.model.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -26,4 +22,8 @@ public interface LastFmApiProvider {
 
     Optional<ScrobblesResult> scrobbleTrack(@NotNull String sessionKey, @NotNull String artist, @NotNull String track,
                                             int timestamp, String album, Boolean chosenByUser, Long duration);
+
+    Optional<User> userGetInfo(String user);
+
+    Optional<LovedTracks> userGetLovedTracks(@NotNull String username, Integer page, Integer limit);
 }

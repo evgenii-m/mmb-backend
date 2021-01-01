@@ -2,6 +2,7 @@ package ru.pushkin.mmb.lastfm.model;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
+import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType
@@ -31,11 +32,14 @@ public class Track implements Serializable {
 	@XmlElement(name = "streamable")
 	private String streamable;
 
+	@XmlElement(name = "image")
+	private List<Image> images;
 
 	public Track() {
 	}
 
-	public Track(boolean nowPlaying, ArtistShort artist, String name, String mbid, AlbumShort album, String url, Date date, String streamable) {
+	public Track(boolean nowPlaying, ArtistShort artist, String name, String mbid, AlbumShort album, String url, Date date, String streamable,
+				 List<Image> images) {
 		this.nowPlaying = nowPlaying;
 		this.artist = artist;
 		this.name = name;
@@ -44,6 +48,7 @@ public class Track implements Serializable {
 		this.url = url;
 		this.date = date;
 		this.streamable = streamable;
+		this.images = images;
 	}
 
 	public boolean getNowPlaying() {
@@ -108,6 +113,14 @@ public class Track implements Serializable {
 
 	public void setStreamable(String streamable) {
 		this.streamable = streamable;
+	}
+
+	public List<Image> getImages() {
+		return images;
+	}
+
+	public void setImages(List<Image> images) {
+		this.images = images;
 	}
 
 	@Override
