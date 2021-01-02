@@ -26,6 +26,9 @@ public class LovedTracks implements Serializable {
     @XmlAttribute(name = "totalPages")
     private long totalPages;
 
+    @XmlAttribute(name = "total")
+    private long total;
+
     @XmlElement(name = "track")
     private List<TrackInfo> tracks;
 

@@ -1,15 +1,17 @@
 package ru.pushkin.mmb.api.output.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+import java.util.List;
+
 @AllArgsConstructor
-@Getter
+@NoArgsConstructor
+@Data
 public class PageableResponse<T> {
     private int page;
     private int size;
-    private int totalSize;
-    private T data;
+    private long totalSize;
+    private List<T> data;
 }

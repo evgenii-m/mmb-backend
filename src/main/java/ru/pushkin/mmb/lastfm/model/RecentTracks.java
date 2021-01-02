@@ -1,9 +1,16 @@
 package ru.pushkin.mmb.lastfm.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType
 public class RecentTracks implements Serializable {
@@ -20,69 +27,10 @@ public class RecentTracks implements Serializable {
 	@XmlAttribute(name = "totalPages")
 	private long totalPages;
 
+	@XmlAttribute(name = "total")
+	private long total;
+
 	@XmlElement(name = "track")
 	private List<Track> tracks;
 
-
-	public RecentTracks() {
-	}
-
-	public RecentTracks(String user, long page, long perPage, long totalPages, List<Track> tracks) {
-		this.user = user;
-		this.page = page;
-		this.perPage = perPage;
-		this.totalPages = totalPages;
-		this.tracks = tracks;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
-
-	public long getPage() {
-		return page;
-	}
-
-	public void setPage(long page) {
-		this.page = page;
-	}
-
-	public long getPerPage() {
-		return perPage;
-	}
-
-	public void setPerPage(long perPage) {
-		this.perPage = perPage;
-	}
-
-	public long getTotalPages() {
-		return totalPages;
-	}
-
-	public void setTotalPages(long totalPages) {
-		this.totalPages = totalPages;
-	}
-
-	public List<Track> getTracks() {
-		return tracks;
-	}
-
-	public void setTracks(List<Track> tracks) {
-		this.tracks = tracks;
-	}
-
-	@Override
-	public String toString() {
-		return "RecentTracks{" +
-				"user='" + user + '\'' +
-				", page=" + page +
-				", perPage=" + perPage +
-				", totalPages=" + totalPages +
-				", tracks=" + tracks +
-				'}';
-	}
 }

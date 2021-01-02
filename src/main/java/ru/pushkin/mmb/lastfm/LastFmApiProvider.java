@@ -12,10 +12,10 @@ public interface LastFmApiProvider {
 
     Optional<String> authGetSession(String token);
 
-    Optional<RecentTracks> userGetRecentTracks(Integer limit, @NotNull String username, Integer page,
-                                               Date from, Boolean extended, Date to);
+    Optional<RecentTracks> userGetRecentTracks(@NotNull String username, Integer page, Integer limit,
+                                               Date from, Date to, Boolean extended);
 
-    Optional<TrackInfo> getTrackInfo(String mbid, String track, String artist, String username, Boolean autocorrect);
+    Optional<TrackInfo> trackGetInfo(String mbid, String track, String artist, String username, Boolean autocorrect);
 
     Optional<UpdateNowPlayingResult> updateNowPlaying(@NotNull String sessionKey, @NotNull String artist,
                                                       @NotNull String track, String album, Long duration);

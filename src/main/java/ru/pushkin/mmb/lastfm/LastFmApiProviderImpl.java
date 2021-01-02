@@ -123,25 +123,20 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
      * See https://www.last.fm/api/show/user.getRecentTracks
      */
     @Override
-    public Optional<RecentTracks> userGetRecentTracks(Integer limit, @NotNull String username, Integer page,
-                                                      Date from, Boolean extended, Date to) {
+    public Optional<RecentTracks> userGetRecentTracks(@NotNull String username, Integer page, Integer limit,
+                                                      Date from, Date to, Boolean extended) {
         LastFmApiMethod method = LastFmApiMethod.USER_GET_RECENT_TRACKS;
         Map<String, String> methodParameters = new HashMap<>();
         methodParameters.put(LastFmApiParam.USER.getName(), username);
-        if (limit != null) {
-            methodParameters.put(LastFmApiParam.LIMIT.getName(), limit.toString());
-        }
-        if (page != null) {
-            methodParameters.put(LastFmApiParam.PAGE.getName(), String.valueOf(page));
-        }
+        setPageAndLimitParameters(methodParameters, page, limit);
         if (from != null) {
-            methodParameters.put(LastFmApiParam.FROM.getName(), String.valueOf(from.getTime()));
+            methodParameters.put(LastFmApiParam.FROM.getName(), String.valueOf(from.getTime() / 10000));
+        }
+        if (to != null) {
+            methodParameters.put(LastFmApiParam.TO.getName(), String.valueOf(to.getTime() / 1000));
         }
         if (extended != null) {
             methodParameters.put(LastFmApiParam.EXTENDED.getName(), extended ? "1" : "0");
-        }
-        if (to != null) {
-            methodParameters.put(LastFmApiParam.TO.getName(), String.valueOf(to.getTime()));
         }
 
         try {
@@ -162,7 +157,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
     }
 
     @Override
-    public Optional<TrackInfo> getTrackInfo(String mbid, String track, String artist, String username, Boolean autocorrect) {
+    public Optional<TrackInfo> trackGetInfo(String mbid, String track, String artist, String username, Boolean autocorrect) {
         LastFmApiMethod method = LastFmApiMethod.TRACK_GET_INFO;
         Map<String, String> methodParameters = new HashMap<>();
         if (mbid != null) {
@@ -298,12 +293,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         LastFmApiMethod method = LastFmApiMethod.USER_GET_LOVED_TRACKS;
         Map<String, String> methodParameters = new HashMap<>();
         methodParameters.put(LastFmApiParam.USER.getName(), username);
-        if (limit != null) {
-            methodParameters.put(LastFmApiParam.LIMIT.getName(), limit.toString());
-        }
-        if (page != null) {
-            methodParameters.put(LastFmApiParam.PAGE.getName(), String.valueOf(page));
-        }
+        setPageAndLimitParameters(methodParameters, page, limit);
 
         try {
             String response = makeApiRequest(method, methodParameters, 0, false, HttpGet::new);
@@ -320,6 +310,15 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         }
 
         return Optional.empty();
+    }
+
+    private static void setPageAndLimitParameters(Map<String, String> methodParameters, Integer page, Integer limit) {
+        if (limit != null) {
+            methodParameters.put(LastFmApiParam.LIMIT.getName(), String.valueOf(limit));
+        }
+        if (page != null) {
+            methodParameters.put(LastFmApiParam.PAGE.getName(), String.valueOf(page + 1));
+        }
     }
 
     private String makeApiGetRequest(LastFmApiMethod method, Map<String, String> methodParameters) {
