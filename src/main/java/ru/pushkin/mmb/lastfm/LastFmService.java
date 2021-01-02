@@ -7,14 +7,14 @@ import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.Pageable;
 import ru.pushkin.mmb.data.SessionsStorage;
 import ru.pushkin.mmb.data.enumeration.SessionDataCode;
-import ru.pushkin.mmb.data.model.library.HistoryTrackData;
+import ru.pushkin.mmb.data.model.library.TrackData;
+import ru.pushkin.mmb.data.repository.TrackDataRepository;
 import ru.pushkin.mmb.lastfm.model.*;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
 
+import java.util.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,6 +27,7 @@ public class LastFmService {
     private final LastFmApiProvider lastFmApiProvider;
     private final SessionsStorage sessionsStorage;
     private final TrackDataMapper trackDataMapper;
+    private final TrackDataRepository trackDataRepository;
 
     /**
      * See https://www.last.fm/api/webauth
@@ -51,9 +52,9 @@ public class LastFmService {
             log.info("Set new LastFm session: userId = {}", userId);
             sessionsStorage.saveSessionData(SessionDataCode.LAST_FM_SESSION_KEY, userId, sessionKey.get());
             Optional<User> user = lastFmApiProvider.userGetInfo(username);
-            if (user.isPresent()) {
-                sessionsStorage.saveSessionData(SessionDataCode.LAST_FM_USERNAME, userId, user.get().getName());
-            }
+            user.ifPresent(u ->
+                    sessionsStorage.saveSessionData(SessionDataCode.LAST_FM_USERNAME, userId, u.getName())
+            );
             return sessionKey.get();
         } else {
             log.warn("Received empty session key, current user session will not be updated");
@@ -81,23 +82,44 @@ public class LastFmService {
 
     }
 
-    public Pageable<HistoryTrackData> fetchRecentTracks(Integer page, Integer limit, Date from, Date to) {
+    public Pageable<TrackData> fetchRecentTracks(Integer page, Integer limit, Date from, Date to) {
         String userId = SecurityHelper.getUserIdFromToken();
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
         return lastFmApiProvider.userGetRecentTracks(lastFmUsername, page, limit, from, to, true)
                 .map(o -> {
-                    List<HistoryTrackData> tracks = o.getTracks().stream()
-                            .map(trackDataMapper::mapHistoryTrackData)
+                    List<TrackData> tracks = o.getTracks().stream()
+                            .map(trackDataMapper::mapTrackData)
                             .collect(Collectors.toList());
-                    tracks.forEach(data -> {
-                        lastFmApiProvider.trackGetInfo(null, data.getTitle(), data.getArtist(), lastFmUsername, false)
-                                .ifPresent(info -> {
-                                    data.setLength(info.getDuration());
-                                    data.setMbid(info.getMbid());
-                                });
-                    });
+                    Map<String, TrackData> tracksStore = fetchTracksMapByMbidOrTitle(tracks);
+                    tracks = tracks.stream().map(track -> {
+                        TrackData storedTrack = tracksStore.get(track.getTitle());
+                        if (storedTrack == null) {
+                            lastFmApiProvider.trackGetInfo(null, track.getTrackName(), track.getArtist(), lastFmUsername, false)
+                                    .ifPresent(info -> {
+                                        track.setLength(info.getDuration());
+                                        track.setMbid(info.getMbid());
+                                    });
+                            return trackDataRepository.save(track);
+                        }
+                        return storedTrack;
+                    }).collect(Collectors.toList());
                     return new Pageable<>(page, limit, o.getTotal(), tracks);
                 })
                 .orElse(Pageable.empty());
     }
+
+    private Map<String, TrackData> fetchTracksMapByMbidOrTitle(List<TrackData> trackDatas) {
+        List<String> mbids = trackDatas.stream()
+                .map(TrackData::getMbid)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        List<String> titles = trackDatas.stream()
+                .map(TrackData::getTitle)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return trackDataRepository.findAllByMbidInOrTitleIn(mbids, titles).stream()
+                .collect(Collectors.toMap(TrackData::getTitle, o -> o));
+    }
+
 }

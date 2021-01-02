@@ -2,7 +2,7 @@ package ru.pushkin.mmb.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
-import ru.pushkin.mmb.data.model.library.HistoryTrackData;
+import ru.pushkin.mmb.data.model.library.TrackData;
 import ru.pushkin.mmb.lastfm.model.Album;
 import ru.pushkin.mmb.lastfm.model.AlbumShort;
 
@@ -15,10 +15,13 @@ import java.util.TimeZone;
 @Component
 public class TrackDataMapper {
 
-    public HistoryTrackData mapHistoryTrackData(ru.pushkin.mmb.lastfm.model.Track source) {
-        HistoryTrackData result = new HistoryTrackData();
-        result.setTitle(source.getName());
+    public static final String TITLE_FORMAT = "%s___%s";
+
+    public TrackData mapTrackData(ru.pushkin.mmb.lastfm.model.Track source) {
+        TrackData result = new TrackData();
+        result.setTrackName(source.getName());
         result.setArtist(source.getArtist().getName());
+        result.setTitle(String.format(TITLE_FORMAT, result.getArtist(), result.getTrackName()));
         Optional.ofNullable(source.getAlbum())
                 .ifPresent(album -> result.setAlbum(album.getName()));
         Optional.ofNullable(source.getMbid())
@@ -30,9 +33,9 @@ public class TrackDataMapper {
         return result;
     }
 
-    public TrackDto map(HistoryTrackData source) {
+    public TrackDto map(TrackData source) {
         return TrackDto.builder()
-                .uuid(source.getId())
+                .uuid(source.getMbid())
                 .artist(source.getArtist())
                 .title(source.getTitle())
                 .album(source.getAlbum())

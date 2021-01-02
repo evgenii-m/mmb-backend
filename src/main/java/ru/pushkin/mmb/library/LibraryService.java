@@ -6,7 +6,7 @@ import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
 import ru.pushkin.mmb.data.Pageable;
-import ru.pushkin.mmb.data.model.library.HistoryTrackData;
+import ru.pushkin.mmb.data.model.library.TrackData;
 import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.lastfm.LastFmService;
 import ru.pushkin.mmb.lastfm.model.LovedTracks;
@@ -41,7 +41,7 @@ public class LibraryService {
     }
 
     public ListeningHistoryResponse getListeningHistory(Integer page, Integer size, LocalDateTime from, LocalDateTime to) {
-        Pageable<HistoryTrackData> response = lastFmService.fetchRecentTracks(
+        Pageable<TrackData> response = lastFmService.fetchRecentTracks(
                 page, size,
                 from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null,
                 to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null
