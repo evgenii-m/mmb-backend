@@ -14,8 +14,4 @@ public class SecurityRole {
     @Id
     private String id;
     private String name;
-
-    public SecurityRole(String name) {
-        this.name = name;
-    }
 }

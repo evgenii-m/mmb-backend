@@ -93,7 +93,11 @@ public class LastFmService {
                     Map<String, TrackData> tracksStore = fetchTracksMapByMbidOrTitle(tracks);
                     tracks = tracks.stream().map(track -> {
                         TrackData storedTrack = tracksStore.get(track.getTitle());
-                        if (storedTrack == null) {
+                        if (storedTrack != null) {
+                            track.setLength(storedTrack.getLength());
+                            track.setMbid(storedTrack.getMbid());
+                            return track;
+                        } else  {
                             lastFmApiProvider.trackGetInfo(null, track.getTrackName(), track.getArtist(), lastFmUsername, false)
                                     .ifPresent(info -> {
                                         track.setLength(info.getDuration());
@@ -101,7 +105,6 @@ public class LastFmService {
                                     });
                             return trackDataRepository.save(track);
                         }
-                        return storedTrack;
                     }).collect(Collectors.toList());
                     return new Pageable<>(page, limit, o.getTotal(), tracks);
                 })

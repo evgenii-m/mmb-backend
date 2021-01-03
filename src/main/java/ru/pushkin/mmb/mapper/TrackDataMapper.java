@@ -37,7 +37,7 @@ public class TrackDataMapper {
         return TrackDto.builder()
                 .uuid(source.getMbid())
                 .artist(source.getArtist())
-                .title(source.getTitle())
+                .title(source.getTrackName())
                 .album(source.getAlbum())
                 .length(source.getLength())
                 .date(source.getDateTime())
