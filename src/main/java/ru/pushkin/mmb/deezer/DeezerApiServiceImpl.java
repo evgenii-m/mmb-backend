@@ -121,7 +121,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 				playlists.addAll(playlistsResponse.getData());
 				index += PLAYLISTS_DEFAULT_LIMIT;
 			} while (playlistsResponse.getNext() != null);
-			log.info("Received deezer {} playlists: {}", playlists.size(), playlists);
+			log.debug("Received deezer {} playlists: {}", playlists.size(), playlists);
 
 			// get tracks for playlists
 			fetchPlaylistsTracks(playlists, currentAccessToken);
@@ -184,7 +184,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 			}
 		} while (tracksResponse.getNext() != null);
 
-		log.info("Received deezer playlist tracks: playlist = {}, size = {}", playlistId, playlistTracks.size());
+		log.debug("Received deezer playlist tracks: playlist = {}, size = {}", playlistId, playlistTracks.size());
 		return playlistTracks;
 	}
 

@@ -2,7 +2,6 @@ DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS security_role;
 DROP TABLE IF EXISTS session_data;
 DROP TABLE IF EXISTS user_data;
-DROP TABLE IF EXISTS track_data;
 
 CREATE TABLE security_role
 (
@@ -31,6 +30,9 @@ CREATE TABLE user_role
     role_id integer REFERENCES security_role
 );
 
+
+DROP TABLE IF EXISTS track_data;
+
 CREATE TABLE track_data
 (
     id         SERIAL PRIMARY KEY,
@@ -43,6 +45,28 @@ CREATE TABLE track_data
     lastfm_url varchar(1000)
 );
 
+
+DROP TABLE IF EXISTS playlist_track;
+DROP TABLE IF EXISTS playlist_data;
+
+CREATE TABLE playlist_data
+(
+    id            SERIAL PRIMARY KEY,
+    title         varchar(1000) NOT NULL,
+    description   varchar(10000),
+    creation_time timestamp     not null,
+    active        boolean       not null default true
+);
+
+CREATE TABLE playlist_track
+(
+    id          SERIAL PRIMARY KEY,
+    playlist_id INTEGER NOT NULL REFERENCES playlist_data,
+    track_id    INTEGER NOT NULL REFERENCES track_data,
+    position    INTEGER NOT NULL
+);
+
+
 INSERT INTO security_role(name)
 VALUES ('ROLE_ADMIN'),
        ('ROLE_USER'),
@@ -50,3 +74,6 @@ VALUES ('ROLE_ADMIN'),
 
 INSERT INTO user_data(login, password)
 VALUES ('pushkin', '$2a$10$jReSFDX77bTYYBKxr5nzTOING8GriMQRKzCQohT1L31sEsijTC.oG');
+
+INSERT INTO user_role(user_id, role_id)
+VALUES (1, 2);
