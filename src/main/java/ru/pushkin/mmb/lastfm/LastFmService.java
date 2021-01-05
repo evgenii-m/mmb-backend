@@ -103,6 +103,7 @@ public class LastFmService {
                                         track.setLength(info.getDuration());
                                         track.setMbid(info.getMbid());
                                     });
+                            tracksStore.put(track.getTitle(), track);
                             return trackDataRepository.save(track);
                         }
                     }).collect(Collectors.toList());
