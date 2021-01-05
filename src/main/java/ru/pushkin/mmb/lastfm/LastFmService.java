@@ -75,15 +75,13 @@ public class LastFmService {
         return sessionKey;
     }
 
-    public Optional<LovedTracks> getFavoriteTracks(Integer page, Integer limit) {
-        String userId = SecurityHelper.getUserIdFromToken();
+    public Optional<LovedTracks> getFavoriteTracks(String userId, Integer page, Integer limit) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
         return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page, limit);
 
     }
 
-    public Pageable<TrackData> fetchRecentTracks(Integer page, Integer limit, Date from, Date to) {
-        String userId = SecurityHelper.getUserIdFromToken();
+    public Pageable<TrackData> fetchRecentTracks(String userId, Integer page, Integer limit, Date from, Date to) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
         return lastFmApiProvider.userGetRecentTracks(lastFmUsername, page, limit, from, to, true)
                 .map(o -> {
@@ -107,7 +105,7 @@ public class LastFmService {
                             return trackDataRepository.save(track);
                         }
                     }).collect(Collectors.toList());
-                    return new Pageable<>(page, limit, o.getTotal(), tracks);
+                    return new Pageable<>(o.getPage(), o.getPerPage(), o.getTotalPages(), o.getTotal(), tracks);
                 })
                 .orElse(Pageable.empty());
     }

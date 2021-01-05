@@ -1,6 +1,7 @@
 package ru.pushkin.mmb.library;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
@@ -11,15 +12,17 @@ import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.lastfm.LastFmService;
 import ru.pushkin.mmb.lastfm.model.LovedTracks;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
+import ru.pushkin.mmb.security.SecurityHelper;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class LibraryService {
@@ -29,8 +32,9 @@ public class LibraryService {
     private final TrackDataMapper trackDataMapper;
 
     public FavoriteTracksResponse findFavoriteTracks(Integer page, Integer size) {
+        String userId = SecurityHelper.getUserIdFromToken();
 //        List<Track> deezerFavoriteTracks = deezerApiService.getFavoriteTracks(page, size);
-        Optional<LovedTracks> favoriteTracks = lastFmService.getFavoriteTracks(page, size);
+        Optional<LovedTracks> favoriteTracks = lastFmService.getFavoriteTracks(userId, page, size);
 
         long totalSize = favoriteTracks.map(LovedTracks::getTotal).orElse(0L);
         List<TrackDto> trackDtos = favoriteTracks.map(LovedTracks::getTracks).stream()
@@ -42,7 +46,7 @@ public class LibraryService {
 
     public ListeningHistoryResponse getListeningHistory(Integer page, Integer size, LocalDateTime from, LocalDateTime to) {
         Pageable<TrackData> response = lastFmService.fetchRecentTracks(
-                page, size,
+                SecurityHelper.getUserIdFromToken(), page, size,
                 from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null,
                 to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null
         );
@@ -50,5 +54,29 @@ public class LibraryService {
                 .map(trackDataMapper::map)
                 .collect(Collectors.toList());
         return new ListeningHistoryResponse(page, size, response.getTotalSize(), trackDtos);
+    }
+
+
+    public long fetchTrackDataForUserListeningHistory(String userId, LocalDateTime from, LocalDateTime to) {
+        int pageSize = 200;
+        Date dateFrom = from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null;
+        Date dateTo = to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null;
+
+        log.info("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {}",
+                userId, from, to, pageSize);
+
+        long totalPages = 1;
+        long totalSize = 0;
+        for (int page = 0; page < totalPages; page++) {
+            Pageable<TrackData> response = lastFmService.fetchRecentTracks(userId, page, pageSize, dateFrom, dateTo);
+            totalPages = response.getTotalPages();
+            totalSize = response.getTotalSize();
+            log.info("Fetched page {} of {}, Total size: {}", page, totalPages, totalSize);
+        }
+
+        log.info("Finish fetch listening history for user (userId: {}, from: {}, to: {}, page size: {}",
+                userId, from, to, pageSize);
+
+        return totalSize;
     }
 }

@@ -6,7 +6,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL9Dialect
-        show_sql: true
+        show_sql: false
         jdbc:
           lob:
             non_contextual_creation: true
@@ -30,7 +30,7 @@ logging:
     console: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level %logger : %msg%n"
     file: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level [%thread] %logger : %msg%n"
   level:
-    ru.pushkin.mmb: DEBUG
+    ru.pushkin.mmb: INFO
   file:
     name: logs/server.log
 
