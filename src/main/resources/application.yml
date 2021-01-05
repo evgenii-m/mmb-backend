@@ -2,9 +2,23 @@ server:
   port: 8081
 
 spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/mmb_data
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL9Dialect
+        show_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+
+mmb.datasource:
+  url: jdbc:postgresql://localhost:5432/mmb
+  username: postgres
+  password: ENC(obEvWZA3nqYq/eb6vBsoDc5gQJGjdlyG)
+  driver-class-name: org.postgresql.Driver
 
 jasypt:
   encryptor:

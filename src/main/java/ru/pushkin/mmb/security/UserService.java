@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.pushkin.mmb.data.enumeration.SecurityRoleCode;
-import ru.pushkin.mmb.data.model.User;
+import ru.pushkin.mmb.data.model.UserData;
 import ru.pushkin.mmb.data.model.SecurityRole;
-import ru.pushkin.mmb.data.repository.UserRepository;
+import ru.pushkin.mmb.data.repository.UserDataRepository;
 import ru.pushkin.mmb.data.repository.SecurityRoleRepository;
 
 import java.util.Optional;
@@ -15,28 +15,31 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserDataRepository userDataRepository;
     private final SecurityRoleRepository securityRoleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User saveUser(String login, String password) {
-        Optional<User> existedUser = findByLogin(login);
-        if (existedUser.isPresent()) {
+    public UserData saveUser(String login, String password) {
+        Optional<UserData> existedUserData = findByLogin(login);
+        if (existedUserData.isPresent()) {
             throw new IllegalStateException("User already registered!");
         }
-        SecurityRole securityRole = securityRoleRepository.findByName(SecurityRoleCode.USER.getCode());
+        SecurityRole securityRole = securityRoleRepository.findByName(SecurityRoleCode.USER.getCode()).orElseThrow();
         String encodedPassword = passwordEncoder.encode(password);
-        return userRepository.save(
-                new User(login, encodedPassword, securityRole)
+        return userDataRepository.save(
+                new UserData(login, encodedPassword, securityRole)
         );
     }
 
-    public Optional<User> findByLogin(String login) {
-        return userRepository.findByLogin(login);
+    public Optional<UserData> findByLogin(String login) {
+        return userDataRepository.findByLogin(login);
     }
 
-    public Optional<User> findByLoginAndPassword(String login, String password) {
-        return findByLogin(login)
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()));
+    public UserData findByLoginAndPassword(String login, String password) {
+        UserData userData = findByLogin(login).orElse(null);
+        if (userData != null && passwordEncoder.matches(password, userData.getPassword())) {
+            return userData;
+        }
+        return null;
     }
 }

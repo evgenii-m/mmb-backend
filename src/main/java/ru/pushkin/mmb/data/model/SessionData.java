@@ -3,18 +3,28 @@ package ru.pushkin.mmb.data.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Document("SessionData")
+@Entity
+@Table(name = "session_data")
 public class SessionData {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @NotNull
     private String code;
+
+    @NotNull
     private String value;
+
+    @NotNull
+    @Column(name = "user_id")
     private String userId;
 
     public SessionData(String code, String value, String userId) {

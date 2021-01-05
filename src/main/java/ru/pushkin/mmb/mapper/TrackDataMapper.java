@@ -15,13 +15,13 @@ import java.util.TimeZone;
 @Component
 public class TrackDataMapper {
 
-    public static final String TITLE_FORMAT = "%s___%s";
+    public static final String TITLE_FORMAT = "%s-%s";
 
     public TrackData mapTrackData(ru.pushkin.mmb.lastfm.model.Track source) {
         TrackData result = new TrackData();
         result.setTrackName(source.getName());
         result.setArtist(source.getArtist().getName());
-        result.setTitle(String.format(TITLE_FORMAT, result.getArtist(), result.getTrackName()));
+        result.setTitle(result.getArtist(), result.getTrackName());
         Optional.ofNullable(source.getAlbum())
                 .ifPresent(album -> result.setAlbum(album.getName()));
         Optional.ofNullable(source.getMbid())

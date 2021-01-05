@@ -4,11 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -16,20 +13,23 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("TrackData")
+@Entity
+@Table(name = "track_data")
 public class TrackData {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    @Indexed(unique = true)
+    @Column(unique = true)
     private String mbid;
 
-    @Indexed(unique = true)
     @NotNull
+    @Column(unique = true)
     private String title;
 
     @NotNull
+    @Column(name = "track_name")
     private String trackName;
 
     @NotNull
@@ -37,10 +37,17 @@ public class TrackData {
 
     private String album;
 
+    @NotNull
     private Long length;
 
+    @Column(name = "lastfm_url")
     private String lastFmUrl;
 
     @Transient
     private LocalDateTime dateTime;
+
+
+    public void setTitle(String artist, String trackName) {
+        this.title = String.format("%s - %s", artist, trackName);
+    }
 }
