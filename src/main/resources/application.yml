@@ -27,10 +27,11 @@ jasypt:
 
 logging:
   pattern:
-    console: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level %logger : %msg%n"
+    console: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level [%thread] %logger : %msg%n"
     file: "%d [%X{X-B3-TraceId}/%X{X-B3-SpanId}/%X{X-B3-ParentSpanId}] %-5level [%thread] %logger : %msg%n"
   level:
     ru.pushkin.mmb: INFO
+    ru.pushkin.mmb.lastfm.LastFmService: DEBUG
   file:
     name: logs/server.log
 
@@ -46,5 +47,6 @@ service-config:
     application-api-key: ENC(iDmLT+3Z1IOmbU+fVuSlE2MafLT0zgM7VT33xNv2vTXtiuMvkGdOnJq7uD8rYcaB)
     application-api-shared-secret: ENC(XIpwAsBnBmNjrp5L/2+OeZfcVTex9KoXyUg78dY6fbjBDfo/ZxuQvPS/D2aYGbOU)
     redirect-url: http://localhost:8081/auth/lastfm/session/
+    service-thread-pool-size: 50
     retry-timeout-sec: 1
     session-retry-count: 2

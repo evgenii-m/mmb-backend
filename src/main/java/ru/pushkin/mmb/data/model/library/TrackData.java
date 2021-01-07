@@ -1,9 +1,6 @@
 package ru.pushkin.mmb.data.model.library;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "track_data")
 public class TrackData {
@@ -37,7 +35,6 @@ public class TrackData {
 
     private String album;
 
-    @NotNull
     private Long length;
 
     @Column(name = "lastfm_url")

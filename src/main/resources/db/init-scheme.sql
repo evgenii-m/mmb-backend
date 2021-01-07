@@ -31,6 +31,8 @@ CREATE TABLE user_role
 );
 
 
+DROP TABLE IF EXISTS playlist_track;
+DROP TABLE IF EXISTS playlist_data;
 DROP TABLE IF EXISTS track_data;
 
 CREATE TABLE track_data
@@ -41,13 +43,9 @@ CREATE TABLE track_data
     track_name varchar(500)  NOT NULL,
     artist     varchar(500)  NOT NULL,
     album      varchar(500),
-    length     numeric       NOT NULL,
+    length     numeric,
     lastfm_url varchar(1000)
 );
-
-
-DROP TABLE IF EXISTS playlist_track;
-DROP TABLE IF EXISTS playlist_data;
 
 CREATE TABLE playlist_data
 (

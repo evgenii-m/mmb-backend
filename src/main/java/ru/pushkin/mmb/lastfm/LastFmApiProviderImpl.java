@@ -5,11 +5,15 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -44,19 +48,18 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
     private static final String LASTFM_API_VERSION = "2.0/";
     private static final String LASTFM_RESPONSE_STATUS_OK = "ok";
 
-    private final XPathFactory xPathFactory;
-    private final URIBuilder baseApiUriBuilder;		// todo: think about make immutable builder
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
     private final ServicePropertyConfig servicePropertyConfig;
 
     public LastFmApiProviderImpl(ServicePropertyConfig servicePropertyConfig) {
-        this.xPathFactory = XPathFactory.newInstance();
-        this.baseApiUriBuilder = new URIBuilder()
-                .setScheme(LASTFM_API_SCHEME)
-                .setHost(LASTFM_API_HOST)
-                .setPath(LASTFM_API_VERSION);
-        this.httpClient = HttpClientBuilder.create().build();
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setMaxTotal(200);
+        cm.setDefaultMaxPerRoute(20);
+
         this.servicePropertyConfig = servicePropertyConfig;
+        this.httpClient = HttpClients.custom()
+                .setConnectionManager(cm)
+                .build();
     }
 
     /**
@@ -64,6 +67,8 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
      */
     @Override
     public String authGetToken() {
+        XPathFactory xPathFactory = XPathFactory.newInstance();
+
         LastFmApiMethod method = LastFmApiMethod.AUTH_GET_TOKEN;
         Map<String, String> methodParameters = new HashMap<>();
 
@@ -91,6 +96,8 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
      */
     @Override
     public Optional<String> authGetSession(String token) {
+        XPathFactory xPathFactory = XPathFactory.newInstance();
+
         LastFmApiMethod method = LastFmApiMethod.AUTH_GET_SESSION;
         Map<String, String> methodParameters = new HashMap<>();
         methodParameters.put(LastFmApiParam.TOKEN.getName(), token);
@@ -149,6 +156,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
                     return Optional.ofNullable(recentTracks);
                 }
             }
+            log.warn("empty response: {}", response);
         } catch (JAXBException e) {
             log.error("parsing xml from response error: ", e);
         }
@@ -339,6 +347,11 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
 
     private <T extends HttpRequestBase> String makeApiRequest(LastFmApiMethod method, Map<String, String> methodParameters,
                                                               int retryCount, boolean setSignature, Function<URI, T> constructRequestFunction) {
+        URIBuilder baseApiUriBuilder = new URIBuilder()
+                .setScheme(LASTFM_API_SCHEME)
+                .setHost(LASTFM_API_HOST)
+                .setPath(LASTFM_API_VERSION);
+
         // append parameters required for all methods
         methodParameters.put(LastFmApiParam.METHOD_NAME.getName(), method.getName());
         methodParameters.put(LastFmApiParam.API_KEY.getName(), servicePropertyConfig.getLastFm().getApplicationApiKey());
@@ -362,14 +375,15 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
                 request = constructRequestFunction.apply(apiUri);
                 try {
                     log.debug("api request: {}", request);
-                    HttpResponse response = httpClient.execute(request);
-                    log.debug("api response: {}", response);
-                    // process response
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    if (HttpStatus.SC_OK == statusCode) {
-                        String responseContent = StreamUtils.readStreamAsOneString(response.getEntity().getContent());
-                        log.debug("response content: {}", responseContent);
-                        return responseContent;
+                    try (CloseableHttpResponse response = httpClient.execute(request)) {
+                        log.debug("api response: {}", response);
+                        // process response
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        if (HttpStatus.SC_OK == statusCode) {
+                            String responseContent = StreamUtils.readStreamAsOneString(response.getEntity().getContent());
+                            log.debug("response content: {}", responseContent);
+                            return responseContent;
+                        }
                     }
                 } finally {
                     request.releaseConnection();

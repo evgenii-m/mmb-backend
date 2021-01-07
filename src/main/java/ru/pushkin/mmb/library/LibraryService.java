@@ -62,7 +62,7 @@ public class LibraryService {
         Date dateFrom = from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null;
         Date dateTo = to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null;
 
-        log.info("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {}",
+        log.info("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {})",
                 userId, from, to, pageSize);
 
         long totalPages = 1;
