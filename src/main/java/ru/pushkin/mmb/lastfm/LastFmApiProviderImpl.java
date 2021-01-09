@@ -137,7 +137,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         methodParameters.put(LastFmApiParam.USER.getName(), username);
         setPageAndLimitParameters(methodParameters, page, limit);
         if (from != null) {
-            methodParameters.put(LastFmApiParam.FROM.getName(), String.valueOf(from.getTime() / 10000));
+            methodParameters.put(LastFmApiParam.FROM.getName(), String.valueOf(from.getTime() / 1000));
         }
         if (to != null) {
             methodParameters.put(LastFmApiParam.TO.getName(), String.valueOf(to.getTime() / 1000));

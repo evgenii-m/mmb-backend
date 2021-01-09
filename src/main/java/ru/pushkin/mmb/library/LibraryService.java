@@ -14,6 +14,7 @@ import ru.pushkin.mmb.lastfm.model.LovedTracks;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
@@ -57,13 +58,12 @@ public class LibraryService {
     }
 
 
-    public long fetchTrackDataForUserListeningHistory(String userId, LocalDateTime from, LocalDateTime to) {
+    public long fetchTrackDataForUserListeningHistory(@NotNull String userId, @NotNull LocalDateTime from, @NotNull LocalDateTime to) {
         int pageSize = 200;
-        Date dateFrom = from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null;
-        Date dateTo = to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null;
+        Date dateFrom = Date.from(from.toInstant(ZoneOffset.UTC));
+        Date dateTo = Date.from(to.toInstant(ZoneOffset.UTC));
 
-        log.info("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {})",
-                userId, from, to, pageSize);
+        log.info("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {})", userId, from, to, pageSize);
 
         long totalPages = 1;
         long totalSize = 0;
@@ -71,11 +71,15 @@ public class LibraryService {
             Pageable<TrackData> response = lastFmService.fetchRecentTracks(userId, page, pageSize, dateFrom, dateTo);
             totalPages = response.getTotalPages();
             totalSize = response.getTotalSize();
-            log.info("Fetched page {} of {}, Total size: {}", page, totalPages, totalSize);
+            long responseSize = response.getSize();
+            log.info("Fetched page {} of {}, Page size = {}, Total size: {}", page, totalPages - 1, responseSize, totalSize);
+            if (responseSize <= 0) {
+                break;
+            }
         }
 
-        log.info("Finish fetch listening history for user (userId: {}, from: {}, to: {}, page size: {}",
-                userId, from, to, pageSize);
+        log.info("Finish fetch listening history for user (userId: {}, from: {}, to: {}, total size: {}",
+                userId, from, to, totalSize);
 
         return totalSize;
     }

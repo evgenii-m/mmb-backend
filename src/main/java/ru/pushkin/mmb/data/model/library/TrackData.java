@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -40,8 +41,25 @@ public class TrackData {
     @Column(name = "lastfm_url")
     private String lastFmUrl;
 
+    @Column(name = "total_play_count")
+    private Long totalPlayCount;
+
+    @Column(name = "total_listeners_count")
+    private Long totalListenersCount;
+
+    @ManyToMany
+    @JoinTable(
+            name = "track_tag",
+            joinColumns = @JoinColumn(name = "track_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
+    )
+    private Set<TagData> tags;
+
     @Transient
     private LocalDateTime dateTime;
+
+    @Transient
+    private UserTrackInfo userTrackInfo;
 
 
     public void setTitle(String artist, String trackName) {

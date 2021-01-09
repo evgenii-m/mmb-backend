@@ -5,6 +5,7 @@ import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.data.model.library.TrackData;
 import ru.pushkin.mmb.lastfm.model.Album;
 import ru.pushkin.mmb.lastfm.model.AlbumShort;
+import ru.pushkin.mmb.utils.DateTimeUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class TrackDataMapper {
         Optional.ofNullable(source.getMbid())
                 .ifPresent(mbid -> result.setMbid(mbid));
         Optional.ofNullable(source.getDate())
-                .ifPresent(date -> result.setDateTime(toLocalDateTime(source.getDate().getUts())));
+                .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(source.getDate().getUts())));
         Optional.ofNullable(source.getUrl())
                 .ifPresent(lastFmUrl -> result.setLastFmUrl(lastFmUrl));
         return result;
@@ -71,7 +72,4 @@ public class TrackDataMapper {
                 .build();
     }
 
-    private static LocalDateTime toLocalDateTime(long utsDate) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(utsDate), TimeZone.getDefault().toZoneId());
-    }
 }

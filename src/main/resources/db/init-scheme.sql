@@ -32,19 +32,33 @@ CREATE TABLE user_role
 
 
 DROP TABLE IF EXISTS playlist_track;
+DROP TABLE IF EXISTS track_tag;
 DROP TABLE IF EXISTS playlist_data;
+DROP TABLE IF EXISTS user_track_info;
 DROP TABLE IF EXISTS track_data;
+DROP TABLE IF EXISTS tag_data;
 
 CREATE TABLE track_data
 (
-    id         SERIAL PRIMARY KEY,
-    mbid       varchar(100) UNIQUE,
-    title      varchar(1000) NOT NULL UNIQUE,
-    track_name varchar(500)  NOT NULL,
-    artist     varchar(500)  NOT NULL,
-    album      varchar(500),
-    length     numeric,
-    lastfm_url varchar(1000)
+    id                    SERIAL PRIMARY KEY,
+    mbid                  varchar(100) UNIQUE,
+    title                 varchar(1000) NOT NULL UNIQUE,
+    track_name            varchar(500)  NOT NULL,
+    artist                varchar(500)  NOT NULL,
+    album                 varchar(500),
+    length                numeric,
+    lastfm_url            varchar(1000),
+    total_play_count      numeric       NOT NULL DEFAULT 0,
+    total_listeners_count numeric       NOT NULL DEFAULT 0
+);
+
+CREATE TABLE user_track_info
+(
+    id           SERIAL PRIMARY KEY,
+    track_id     INTEGER       NOT NULL REFERENCES track_data,
+    user_id      varchar(1000) NOT NULL,
+    favorite     boolean       NOT NULL DEFAULT FALSE,
+    listen_count numeric       NOT NULL DEFAULT 0
 );
 
 CREATE TABLE playlist_data
@@ -62,6 +76,19 @@ CREATE TABLE playlist_track
     playlist_id INTEGER NOT NULL REFERENCES playlist_data,
     track_id    INTEGER NOT NULL REFERENCES track_data,
     position    INTEGER NOT NULL
+);
+
+CREATE TABLE tag_data
+(
+    id   SERIAL PRIMARY KEY,
+    name varchar(250)  NOT NULL UNIQUE,
+    url  varchar(1000) NOT NULL
+);
+
+CREATE TABLE track_tag
+(
+    track_id integer REFERENCES track_data,
+    tag_id   integer REFERENCES tag_data
 );
 
 
