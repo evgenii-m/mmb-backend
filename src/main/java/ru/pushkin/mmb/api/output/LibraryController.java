@@ -41,6 +41,6 @@ public class LibraryController {
             @RequestParam(name = "to", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
     ) {
-        return ResponseEntity.ok(libraryService.getListeningHistory(page, size, from, to));
+        return ResponseEntity.ok(libraryService.getUserListeningHistory(page, size, from, to));
     }
 }

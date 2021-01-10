@@ -107,7 +107,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    private static class TrackDataProjection {
+    public static class TrackDataProjection {
         private TrackData trackData;
         private UserTrackInfo trackInfo;
     }

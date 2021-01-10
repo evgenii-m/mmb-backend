@@ -32,6 +32,7 @@ logging:
   level:
     ru.pushkin.mmb: INFO
     ru.pushkin.mmb.lastfm.LastFmService: DEBUG
+    ru.pushkin.mmb.library.LibraryService: DEBUG
   file:
     name: logs/server.log
 
