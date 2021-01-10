@@ -155,7 +155,7 @@ public class LastFmService {
         return trackData;
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     void fetchTagData(TrackData trackData, TopTags topTags) {
         if (topTags != null && !CollectionUtils.isEmpty(topTags.getTags())) {
             Set<TagData> tags = topTags.getTags().stream()
@@ -176,7 +176,7 @@ public class LastFmService {
         }
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     void fetchUserInfo(TrackData trackData, TrackInfo trackInfo, String userId) {
         if (trackInfo != null) {
             Optional<UserTrackInfo> storedUserInfo = userTrackInfoRepository.findByTrackIdAndUserId(trackData.getId(), userId);
