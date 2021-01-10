@@ -57,14 +57,12 @@ public class LibraryService {
     public FavoriteTracksResponse findFavoriteTracks(Integer page, Integer size) {
         String userId = SecurityHelper.getUserIdFromToken();
 //        List<Track> deezerFavoriteTracks = deezerApiService.getFavoriteTracks(page, size);
-        Optional<LovedTracks> favoriteTracks = lastFmService.getFavoriteTracks(userId, page, size);
-
-        long totalSize = favoriteTracks.map(LovedTracks::getTotal).orElse(0L);
-        List<TrackDto> trackDtos = favoriteTracks.map(LovedTracks::getTracks).stream()
-                .flatMap(Collection::stream)
+        Pageable<TrackData> favoriteTracks = lastFmService.getFavoriteTracks(userId, page, size);
+        List<TrackData> tracksData = fillTrackData(favoriteTracks.getData(), userId);
+        List<TrackDto> trackDtos = tracksData.stream()
                 .map(trackDataMapper::map)
                 .collect(Collectors.toList());
-        return new FavoriteTracksResponse(page, size, totalSize, trackDtos);
+        return new FavoriteTracksResponse((int) favoriteTracks.getPage(), tracksData.size(), favoriteTracks.getTotalSize(), trackDtos);
     }
 
     public ListeningHistoryResponse getUserListeningHistory(Integer page, Integer size, LocalDateTime from, LocalDateTime to) {
@@ -103,6 +101,10 @@ public class LibraryService {
                         log.debug("End fetch track data (track = {})", track);
                         tracksStore.putIfAbsent(track.getTitle(), trackData);
                         return trackData;
+                    } else {
+                        // copy transient fields
+                        storedTrack.setDateTime(track.getDateTime());
+                        storedTrack.setUserTrackInfo(track.getUserTrackInfo());
                     }
                     return storedTrack;
                 }).collect(Collectors.toList());

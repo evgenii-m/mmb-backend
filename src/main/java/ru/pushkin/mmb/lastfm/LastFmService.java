@@ -102,9 +102,16 @@ public class LastFmService {
         return sessionKey;
     }
 
-    public Optional<LovedTracks> getFavoriteTracks(String userId, Integer page, Integer limit) {
+    public Pageable<TrackData> getFavoriteTracks(String userId, Integer page, Integer limit) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
-        return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page, limit);
+        return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page, limit)
+                .map(o -> {
+                    List<TrackData> tracks = o.getTracks().stream()
+                            .map(trackDataMapper::mapTrackData)
+                            .collect(Collectors.toList());
+                    return new Pageable<>(o.getPage(), o.getPerPage(), o.getTotalPages(), o.getTotal(), tracks);
+                })
+                .orElse(Pageable.empty());
 
     }
 
@@ -133,6 +140,7 @@ public class LastFmService {
                     trackDataRepository.findByTitle(trackData.getTitle(), userId);
             if (foundedTrack.isPresent()) {
                 trackData = foundedTrack.get();
+                trackData.setDateTime(track.getDateTime());
             }
             if (trackData.getLength() == null) {
                 trackData.setLength(trackInfo.getDuration());
@@ -158,18 +166,21 @@ public class LastFmService {
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     void fetchTagData(TrackData trackData, TopTags topTags) {
         if (topTags != null && !CollectionUtils.isEmpty(topTags.getTags())) {
-            Set<TagData> tags = topTags.getTags().stream()
-                    .map(tag -> {
-                        TagData tagData = tagDataCache.get(tag.getName());
-                        if (tagData == null) {
-                            Optional<TagData> foundedTag = tagDataRepository.findByName(tag.getName());
-                            tagData = foundedTag
-                                    .orElseGet(() -> tagDataRepository.save(new TagData(tag.getName(), tag.getUrl())));
-                            tagDataCache.put(tag.getName(), tagData);
-                        }
-                        return tagData;
-                    })
-                    .collect(Collectors.toSet());
+            Set<TagData> tags = new HashSet<>();
+            for (Tag tag : topTags.getTags()) {
+                TagData tagData = tagDataCache.get(tag.getName());
+                if (tagData == null) {
+                    Optional<TagData> foundedTag = tagDataRepository.findByName(tag.getName());
+                    if (foundedTag.isPresent()) {
+                        tagData = foundedTag.get();
+                    } else {
+                        TagData newTagData = new TagData(tag.getName(), tag.getUrl());
+                        tagData = tagDataRepository.save(newTagData);
+                    }
+                    tagDataCache.put(tag.getName(), tagData);
+                }
+                tags.add(tagData);
+            }
             if (!tags.isEmpty()) {
                 trackData.setTags(tags);
             }

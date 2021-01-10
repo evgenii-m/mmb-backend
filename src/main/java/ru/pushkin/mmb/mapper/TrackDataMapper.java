@@ -26,11 +26,27 @@ public class TrackDataMapper {
         Optional.ofNullable(source.getAlbum())
                 .ifPresent(album -> result.setAlbum(album.getName()));
         Optional.ofNullable(source.getMbid())
-                .ifPresent(mbid -> result.setMbid(mbid));
+                .ifPresent(result::setMbid);
         Optional.ofNullable(source.getDate())
                 .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(source.getDate().getUts())));
         Optional.ofNullable(source.getUrl())
-                .ifPresent(lastFmUrl -> result.setLastFmUrl(lastFmUrl));
+                .ifPresent(result::setLastFmUrl);
+        return result;
+    }
+
+    public TrackData mapTrackData(ru.pushkin.mmb.lastfm.model.TrackInfo source) {
+        TrackData result = new TrackData();
+        result.setTrackName(source.getName());
+        result.setArtist(source.getArtist().getName());
+        result.setTitle(result.getArtist(), result.getTrackName());
+        Optional.ofNullable(source.getAlbum())
+                .ifPresent(album -> result.setAlbum(album.getTitle()));
+        Optional.ofNullable(source.getMbid())
+                .ifPresent(result::setMbid);
+        Optional.ofNullable(source.getDate())
+                .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(source.getDate().getUts())));
+        Optional.ofNullable(source.getUrl())
+                .ifPresent(result::setLastFmUrl);
         return result;
     }
 
@@ -59,17 +75,5 @@ public class TrackDataMapper {
                 .build();
     }
 
-    public TrackDto map(ru.pushkin.mmb.lastfm.model.TrackInfo source) {
-        return TrackDto.builder()
-                .uuid(source.getMbid())
-                .artist(source.getArtist().getName())
-                .title(source.getName())
-                .album(Optional.ofNullable(source.getAlbum()).map(Album::getTitle).orElse(null))
-                .date(
-                        LocalDateTime.ofInstant(Instant.ofEpochSecond(source.getDate().getUts()), TimeZone.getDefault().toZoneId())
-                )
-                .sourceLink(source.getUrl())
-                .build();
-    }
 
 }
