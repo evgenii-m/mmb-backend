@@ -2,16 +2,14 @@ package ru.pushkin.mmb.lastfm;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.stereotype.Component;
@@ -56,9 +54,16 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         cm.setMaxTotal(200);
         cm.setDefaultMaxPerRoute(20);
 
+        int timeout = 5;
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
+
         this.servicePropertyConfig = servicePropertyConfig;
         this.httpClient = HttpClients.custom()
                 .setConnectionManager(cm)
+                .setDefaultRequestConfig(requestConfig)
                 .build();
     }
 
@@ -147,7 +152,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         }
 
         try {
-            String response = makeApiRequest(method, methodParameters, 0, false, HttpGet::new);
+            String response = makeApiRequest(method, methodParameters, 3, false, HttpGet::new);
             if (response != null) {
                 LastFmResponse lastFmResponse = XmlUtils.unmarshalDocumnet(response, LastFmResponse.class.getPackage().getName());
                 if (validateLastFmResponse(lastFmResponse)) {
@@ -395,7 +400,7 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         } catch (IOException e) {
             log.error("http request error: request = {}, exception = {}", request, e);
         } catch (InterruptedException e) {
-            log.error("timeout error: ", request, e);
+            log.error("timeout error: request = {}, exception = {}", request, e);
         }
 
         return null;

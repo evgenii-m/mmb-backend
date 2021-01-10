@@ -107,6 +107,7 @@ public class LastFmService {
         return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page, limit);
 
     }
+
     public Pageable<TrackData> fetchRecentTracks(String userId, Integer page, Integer limit, Date from, Date to) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
         return lastFmApiProvider.userGetRecentTracks(lastFmUsername, page, limit, from, to, true)

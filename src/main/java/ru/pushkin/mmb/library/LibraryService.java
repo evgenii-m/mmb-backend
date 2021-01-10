@@ -79,10 +79,10 @@ public class LibraryService {
 
     public Pageable<TrackData> fetchTrackDataForUserListeningHistory(
             @NotNull String userId, @NotNull Integer page, @NotNull Integer size,
-            @NotNull LocalDateTime from, @NotNull LocalDateTime to
+            LocalDateTime from, LocalDateTime to
     ) {
-        Date dateFrom = Date.from(from.toInstant(ZoneOffset.UTC));
-        Date dateTo = Date.from(to.toInstant(ZoneOffset.UTC));
+        Date dateFrom = from != null ? Date.from(from.toInstant(ZoneOffset.UTC)) : null;
+        Date dateTo = to != null ? Date.from(to.toInstant(ZoneOffset.UTC)) : null;
         Pageable<TrackData> recentTracks = lastFmService.fetchRecentTracks(userId, page, size, dateFrom, dateTo);
         List<TrackData> tracksData = fillTrackData(recentTracks.getData(), userId);
         return new Pageable<>(recentTracks.getPage(), tracksData.size(), recentTracks.getTotalPages(), recentTracks.getTotalSize(), tracksData);
