@@ -48,8 +48,7 @@ CREATE TABLE track_data
     album                 varchar(500),
     length                numeric,
     lastfm_url            varchar(1000),
-    total_play_count      numeric       NOT NULL DEFAULT 0,
-    total_listeners_count numeric       NOT NULL DEFAULT 0
+    deezer_url            varchar(1000)
 );
 
 CREATE TABLE user_track_info
@@ -67,7 +66,10 @@ CREATE TABLE playlist_data
     title         varchar(1000) NOT NULL,
     description   varchar(10000),
     creation_time timestamp     not null,
-    active        boolean       not null default true
+    active        boolean       not null default true,
+    sync          boolean       not null default false,
+    type          varchar(50)   not null,
+    source_url    varchar(1000)
 );
 
 CREATE TABLE playlist_track
@@ -75,7 +77,8 @@ CREATE TABLE playlist_track
     id          SERIAL PRIMARY KEY,
     playlist_id INTEGER NOT NULL REFERENCES playlist_data,
     track_id    INTEGER NOT NULL REFERENCES track_data,
-    position    INTEGER NOT NULL
+    position    INTEGER NOT NULL,
+    added       TIMESTAMP
 );
 
 CREATE TABLE tag_data

@@ -107,7 +107,7 @@ public class LastFmService {
         return lastFmApiProvider.userGetLovedTracks(lastFmUsername, page, limit)
                 .map(o -> {
                     List<TrackData> tracks = o.getTracks().stream()
-                            .map(trackDataMapper::mapTrackData)
+                            .map(trackDataMapper::map)
                             .collect(Collectors.toList());
                     return new Pageable<>(o.getPage(), o.getPerPage(), o.getTotalPages(), o.getTotal(), tracks);
                 })
@@ -120,7 +120,7 @@ public class LastFmService {
         return lastFmApiProvider.userGetRecentTracks(lastFmUsername, page, limit, from, to, true)
                 .map(o -> {
                     List<TrackData> tracks = o.getTracks().stream()
-                            .map(trackDataMapper::mapTrackData)
+                            .map(trackDataMapper::map)
                             .collect(Collectors.toList());
                     return new Pageable<>(o.getPage(), o.getPerPage(), o.getTotalPages(), o.getTotal(), tracks);
                 })
@@ -135,12 +135,14 @@ public class LastFmService {
                 .orElse(null);
 
         if (trackInfo != null) {
-            Optional<TrackData> foundedTrack = StringUtils.isNotEmpty(trackInfo.getMbid()) ?
-                    trackDataRepository.findByMbidOrTitle(trackInfo.getMbid(), track.getTitle(), userId) :
-                    trackDataRepository.findByTitle(trackData.getTitle(), userId);
-            if (foundedTrack.isPresent()) {
-                trackData = foundedTrack.get();
-                trackData.setDateTime(track.getDateTime());
+            if (trackData.getId() == null) {
+                Optional<TrackData> foundedTrack = StringUtils.isNotEmpty(trackInfo.getMbid()) ?
+                        trackDataRepository.findByMbidOrTitle(trackInfo.getMbid(), track.getTitle(), userId) :
+                        trackDataRepository.findByTitle(trackData.getTitle(), userId);
+                if (foundedTrack.isPresent()) {
+                    trackData = foundedTrack.get();
+                    trackData.setDateTime(track.getDateTime());
+                }
             }
             if (trackData.getLength() == null) {
                 trackData.setLength(trackInfo.getDuration());
@@ -151,8 +153,6 @@ public class LastFmService {
             if (StringUtils.isEmpty(trackData.getAlbum()) && trackInfo.getAlbum() != null) {
                 trackData.setAlbum(trackInfo.getAlbum().getTitle());
             }
-            trackData.setTotalPlayCount(trackInfo.getPlaycount());
-            trackData.setTotalListenersCount(trackInfo.getListeners());
 
             trackData = trackDataRepository.save(trackData);
 

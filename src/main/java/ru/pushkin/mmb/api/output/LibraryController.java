@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.pushkin.mmb.api.output.enumeration.PlaylistTypeParam;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
 import ru.pushkin.mmb.library.LibraryService;
@@ -30,6 +28,21 @@ public class LibraryController {
     ) {
         FavoriteTracksResponse favoriteTracks = libraryService.findFavoriteTracks(page, size);
         return ResponseEntity.ok(favoriteTracks);
+    }
+
+    @GetMapping(value = "/playlists", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getPlaylists(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "50") int size,
+            @RequestParam(name = "type", required = false) PlaylistTypeParam playlistTypeParam
+    ) {
+        return ResponseEntity.ok("Success");
+    }
+
+    @PostMapping(value = "/playlists/deezer")
+    public ResponseEntity fetchPlaylistsFromDeezer() {
+        libraryService.fetchPlaylistsForUserFromDeezer();
+        return ResponseEntity.ok("Success");
     }
 
     @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)

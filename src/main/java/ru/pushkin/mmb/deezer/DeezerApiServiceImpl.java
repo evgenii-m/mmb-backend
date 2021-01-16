@@ -8,11 +8,13 @@ import org.springframework.util.CollectionUtils;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.SessionsStorage;
 import ru.pushkin.mmb.data.enumeration.SessionDataCode;
+import ru.pushkin.mmb.data.model.library.PlaylistData;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Playlists;
 import ru.pushkin.mmb.deezer.model.Track;
 import ru.pushkin.mmb.deezer.model.Tracks;
 import ru.pushkin.mmb.deezer.model.internal.PlaylistId;
+import ru.pushkin.mmb.mapper.PlaylistDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
 
 import javax.annotation.PostConstruct;
@@ -33,6 +35,8 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	private final DeezerApiProvider deezerApiProvider;
 	private final ServicePropertyConfig servicePropertyConfig;
 	private final SessionsStorage sessionsStorage;
+	private final PlaylistDataMapper playlistDataMapper;
+
 	private ExecutorService executorService;
 
 
@@ -109,7 +113,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	}
 
 	@Override
-	public List<Playlist> getPlaylists() throws DeezerApiErrorException {
+	public List<PlaylistData> getPlaylists() throws DeezerApiErrorException {
 		String currentAccessToken = getAccessToken();
 		try {
 			// get user playlists
@@ -125,7 +129,9 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 
 			// get tracks for playlists
 			fetchPlaylistsTracks(playlists, currentAccessToken);
-			return playlists;
+			return playlists.stream()
+                    .map(playlistDataMapper::map)
+                    .collect(Collectors.toList());
 
 		} catch (DeezerApiErrorException e) {
 			log.error("Deezer api error:", e);
@@ -270,7 +276,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 	}
 
 	@Override
-	public String getAccessToken() throws DeezerApiErrorException {
+	public String getAccessToken() {
 		String userId = SecurityHelper.getUserIdFromToken();
 		String accessToken = sessionsStorage.getDeezerAccessToken(userId);
 		if (accessToken == null) {
@@ -278,5 +284,13 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 		}
 		return accessToken;
 	}
+
+    private String getAccessToken(String userId) {
+        String accessToken = sessionsStorage.getDeezerAccessToken(userId);
+        if (accessToken == null) {
+            throw new SecurityException("Deezer access token not defined.");
+        }
+        return accessToken;
+    }
 
 }

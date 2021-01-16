@@ -41,11 +41,8 @@ public class TrackData {
     @Column(name = "lastfm_url")
     private String lastFmUrl;
 
-    @Column(name = "total_play_count")
-    private Long totalPlayCount;
-
-    @Column(name = "total_listeners_count")
-    private Long totalListenersCount;
+    @Column(name = "deezer_url")
+    private String deezerUrl;
 
     @ManyToMany
     @JoinTable(

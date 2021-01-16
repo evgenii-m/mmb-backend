@@ -1,6 +1,7 @@
 package ru.pushkin.mmb.deezer;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
@@ -55,8 +56,15 @@ public class DeezerApiProviderImpl implements DeezerApiProvider {
 		cm.setMaxTotal(200);
 		cm.setDefaultMaxPerRoute(20);
 
+        int timeout = 5;
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
+
 		this.httpClient = HttpClients.custom()
 				.setConnectionManager(cm)
+                .setDefaultRequestConfig(requestConfig)
 				.build();
 
 	}

@@ -8,18 +8,21 @@ import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.Pageable;
+import ru.pushkin.mmb.data.model.library.PlaylistData;
+import ru.pushkin.mmb.data.model.library.PlaylistTrack;
 import ru.pushkin.mmb.data.model.library.TrackData;
+import ru.pushkin.mmb.data.repository.PlaylistDataRepository;
 import ru.pushkin.mmb.data.repository.TagDataRepository;
 import ru.pushkin.mmb.data.repository.TrackDataRepository;
 import ru.pushkin.mmb.data.repository.UserTrackInfoRepository;
 import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.lastfm.LastFmService;
-import ru.pushkin.mmb.lastfm.model.LovedTracks;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -39,6 +42,7 @@ public class LibraryService {
     private final TrackDataRepository trackDataRepository;
     private final TagDataRepository tagDataRepository;
     private final UserTrackInfoRepository userTrackInfoRepository;
+    private final PlaylistDataRepository playlistDataRepository;
 
     private ExecutorService executorService;
 
@@ -86,7 +90,7 @@ public class LibraryService {
         return new Pageable<>(recentTracks.getPage(), tracksData.size(), recentTracks.getTotalPages(), recentTracks.getTotalSize(), tracksData);
     }
 
-    private List<TrackData> fillTrackData(List<TrackData> tracks, String userId) {
+    private List<TrackData> fillTrackData(Collection<TrackData> tracks, String userId) {
         ConcurrentMap<String, TrackData> tracksStore = new ConcurrentHashMap<>(
                 fetchTracksMapByMbidOrTitle(tracks, userId)
         );
@@ -140,25 +144,59 @@ public class LibraryService {
         log.debug("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {})", userId, from, to, pageSize);
 
         long totalPages = 1;
-        long totalSize = 0;
+        long fetchedSize = 0;
         for (int page = 0; page < totalPages; page++) {
             Pageable<TrackData> response = fetchTrackDataForUserListeningHistory(userId, page, pageSize, from, to);
             totalPages = response.getTotalPages();
-            totalSize = response.getTotalSize();
+            long totalSize = response.getTotalSize();
             long responseSize = response.getSize();
-            log.debug("Fetched page {} of {}, Page size = {}, Total size: {}", page, totalPages - 1, responseSize, totalSize);
+            fetchedSize += responseSize;
+            log.debug("Fetched page {} of {}, Page size = {}, Fetched data size {} of {}",
+                    page, totalPages - 1, responseSize, fetchedSize, totalSize);
             if (responseSize <= 0) {
                 break;
             }
         }
 
-        log.debug("Finish fetch listening history for user (userId: {}, from: {}, to: {}, total size: {}",
-                userId, from, to, totalSize);
+        log.debug("Finish fetch listening history for user (userId: {}, from: {}, to: {}, fetched size: {})",
+                userId, from, to, fetchedSize);
 
-        return totalSize;
+        return fetchedSize;
     }
 
-    private Map<String, TrackData> fetchTracksMapByMbidOrTitle(List<TrackData> trackDatas, String userId) {
+    @Transactional
+    public int fetchPlaylistsForUserFromDeezer() {
+        String userId = SecurityHelper.getUserIdFromToken();
+        log.debug("Start fetch playlists from Deezer for user (userId: {})", userId);
+
+        List<PlaylistData> playlists = deezerApiService.getPlaylists();
+        int totalPlaylists = playlists.size();
+        log.debug("Obtained playlists from Deezer for user (userId: {}, count: {})", userId, totalPlaylists);
+        for (PlaylistData playlist : playlists) {
+            Set<TrackData> trackSet = new HashSet<>();
+            Map<String, List<PlaylistTrack>> tracksMap = new HashMap<>();
+            for (PlaylistTrack playlistTrack : playlist.getTracks()) {
+                String key = playlistTrack.getTrackData().getTitle();
+                if (!tracksMap.containsKey(key)) {
+                    tracksMap.put(key, new ArrayList<>());
+                }
+                tracksMap.get(key).add(playlistTrack);
+                trackSet.add(playlistTrack.getTrackData());
+            }
+            List<TrackData> tracksData = fillTrackData(trackSet, userId);
+            tracksData.forEach(trackData -> tracksMap.get(trackData.getTitle())
+                    .forEach(playlistTrack -> playlistTrack.setTrackData(trackData)));
+            log.debug("Fetched playlist track data {} of {}", playlists.indexOf(playlist), totalPlaylists - 1);
+        }
+        playlistDataRepository.saveAll(playlists);
+
+        log.debug("Finish fetch playlists from Deezer for user (userId: {}, fetched size: {})",
+                userId, totalPlaylists);
+        return totalPlaylists;
+    }
+
+
+    private Map<String, TrackData> fetchTracksMapByMbidOrTitle(Collection<TrackData> trackDatas, String userId) {
         List<String> mbids = trackDatas.stream()
                 .map(TrackData::getMbid)
                 .filter(Objects::nonNull)

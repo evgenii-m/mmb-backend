@@ -1,6 +1,7 @@
 package ru.pushkin.mmb.deezer;
 
 
+import ru.pushkin.mmb.data.model.library.PlaylistData;
 import ru.pushkin.mmb.deezer.model.Playlist;
 import ru.pushkin.mmb.deezer.model.Track;
 
@@ -27,7 +28,7 @@ public interface DeezerApiService {
 	 */
 	String obtainNewAccessToken(String code);
 
-	String getAccessToken() throws DeezerApiErrorException;
+	String getAccessToken();
 
 	/**
 	 * Get track object
@@ -39,7 +40,7 @@ public interface DeezerApiService {
 	 * Get current user favorite playlists
 	 * See https://developers.deezer.com/api/user/playlists
 	 */
-	List<Playlist> getPlaylists() throws DeezerApiErrorException;
+	List<PlaylistData> getPlaylists() throws DeezerApiErrorException;
 
 	Playlist getPlaylist(long playlistId) throws DeezerApiErrorException;
 

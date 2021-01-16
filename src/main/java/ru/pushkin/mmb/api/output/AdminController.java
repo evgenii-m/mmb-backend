@@ -29,7 +29,7 @@ public class AdminController {
 
     // TODO: add security check for ADMIN
     @PostMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> loadUserDataFromLastFm(
+    public ResponseEntity<String> fetchUserDataFromLastFm(
             @RequestParam(name = "userId") String userId,
             @RequestParam(name = "from")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,

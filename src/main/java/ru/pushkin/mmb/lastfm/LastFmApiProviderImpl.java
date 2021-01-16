@@ -58,7 +58,8 @@ public class LastFmApiProviderImpl implements LastFmApiProvider {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(timeout * 1000)
                 .setConnectionRequestTimeout(timeout * 1000)
-                .setSocketTimeout(timeout * 1000).build();
+                .setSocketTimeout(timeout * 1000)
+                .build();
 
         this.servicePropertyConfig = servicePropertyConfig;
         this.httpClient = HttpClients.custom()

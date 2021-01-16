@@ -3,6 +3,7 @@ package ru.pushkin.mmb.data.model.library;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.pushkin.mmb.data.enumeration.PlaylistType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,7 +29,16 @@ public class PlaylistData {
     private LocalDateTime creationTime;
 
     @NotNull
-    private Boolean active;
+    private boolean active;
+
+    @NotNull
+    private boolean sync;
+
+    @Enumerated(value = EnumType.STRING)
+    private PlaylistType type;
+
+    @Column(name = "source_url")
+    private String sourceUrl;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<PlaylistTrack> tracks;

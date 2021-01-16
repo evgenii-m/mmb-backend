@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,5 +28,7 @@ public class PlaylistTrack {
 
     @NotNull
     private Integer position;
+
+    private LocalDateTime added;
 
 }

@@ -3,6 +3,7 @@ package ru.pushkin.mmb.mapper;
 import org.springframework.stereotype.Component;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.data.model.library.TrackData;
+import ru.pushkin.mmb.deezer.model.Track;
 import ru.pushkin.mmb.lastfm.model.Album;
 import ru.pushkin.mmb.lastfm.model.AlbumShort;
 import ru.pushkin.mmb.utils.DateTimeUtils;
@@ -16,9 +17,7 @@ import java.util.TimeZone;
 @Component
 public class TrackDataMapper {
 
-    public static final String TITLE_FORMAT = "%s-%s";
-
-    public TrackData mapTrackData(ru.pushkin.mmb.lastfm.model.Track source) {
+    public TrackData map(ru.pushkin.mmb.lastfm.model.Track source) {
         TrackData result = new TrackData();
         result.setTrackName(source.getName());
         result.setArtist(source.getArtist().getName());
@@ -34,7 +33,7 @@ public class TrackDataMapper {
         return result;
     }
 
-    public TrackData mapTrackData(ru.pushkin.mmb.lastfm.model.TrackInfo source) {
+    public TrackData map(ru.pushkin.mmb.lastfm.model.TrackInfo source) {
         TrackData result = new TrackData();
         result.setTrackName(source.getName());
         result.setArtist(source.getArtist().getName());
@@ -44,9 +43,24 @@ public class TrackDataMapper {
         Optional.ofNullable(source.getMbid())
                 .ifPresent(result::setMbid);
         Optional.ofNullable(source.getDate())
-                .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(source.getDate().getUts())));
+                .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(date.getUts())));
         Optional.ofNullable(source.getUrl())
                 .ifPresent(result::setLastFmUrl);
+        return result;
+    }
+
+    public TrackData map(ru.pushkin.mmb.deezer.model.Track source) {
+        TrackData result = new TrackData();
+        result.setTrackName(source.getTitle());
+        Optional.ofNullable(source.getArtist())
+                .ifPresent(artist -> result.setArtist(artist.getName()));
+        result.setTitle(result.getArtist(), result.getTrackName());
+        Optional.ofNullable(source.getAlbum())
+                .ifPresent(album -> result.setAlbum(album.getTitle()));
+        Optional.ofNullable(source.getLink())
+                .ifPresent(result::setDeezerUrl);
+        Optional.ofNullable(source.getTime_add())
+                .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(date.getTime())));
         return result;
     }
 
@@ -59,19 +73,6 @@ public class TrackDataMapper {
                 .length(source.getLength())
                 .date(source.getDateTime())
                 .sourceLink(source.getLastFmUrl())
-                .build();
-    }
-
-    public TrackDto map(ru.pushkin.mmb.lastfm.model.Track source) {
-        return TrackDto.builder()
-                .uuid(source.getMbid())
-                .artist(source.getArtist().getName())
-                .title(source.getName())
-                .album(Optional.ofNullable(source.getAlbum()).map(AlbumShort::getName).orElse(null))
-                .date(
-                        LocalDateTime.ofInstant(Instant.ofEpochSecond(source.getDate().getUts()), TimeZone.getDefault().toZoneId())
-                )
-                .sourceLink(source.getUrl())
                 .build();
     }
 
