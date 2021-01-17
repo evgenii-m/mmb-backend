@@ -186,13 +186,13 @@ public class LibraryService {
             List<TrackData> tracksData = fillTrackData(trackSet, userId);
             tracksData.forEach(trackData -> tracksMap.get(trackData.getTitle())
                     .forEach(playlistTrack -> playlistTrack.setTrackData(trackData)));
-            log.debug("Fetched playlist track data {} of {}", playlists.indexOf(playlist), totalPlaylists - 1);
+            log.debug("Fetched data for playlist {} of {}", playlists.indexOf(playlist), totalPlaylists - 1);
         }
-        playlistDataRepository.saveAll(playlists);
+        List<PlaylistData> savedPlaylists = playlistDataRepository.saveAll(playlists);
 
         log.debug("Finish fetch playlists from Deezer for user (userId: {}, fetched size: {})",
-                userId, totalPlaylists);
-        return totalPlaylists;
+                userId, savedPlaylists.size());
+        return savedPlaylists.size();
     }
 
 

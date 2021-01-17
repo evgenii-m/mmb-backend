@@ -98,7 +98,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
         );
         return queryFactory.select(projection)
                 .from(QTrackData.trackData)
-                .join(QUserTrackInfo.userTrackInfo)
+                .leftJoin(QUserTrackInfo.userTrackInfo)
                 .on(QUserTrackInfo.userTrackInfo.trackId.eq(QTrackData.trackData.id).and(QUserTrackInfo.userTrackInfo.userId.eq(userId)))
                 .where(whereClause);
     }

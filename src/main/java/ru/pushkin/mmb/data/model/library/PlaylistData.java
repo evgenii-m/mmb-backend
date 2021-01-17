@@ -40,6 +40,6 @@ public class PlaylistData {
     @Column(name = "source_url")
     private String sourceUrl;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "playlistData", cascade = CascadeType.ALL)
     private List<PlaylistTrack> tracks;
 }

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -51,6 +52,9 @@ public class TrackData {
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )
     private Set<TagData> tags;
+
+    @OneToMany(mappedBy = "trackData", orphanRemoval = true)
+    private List<PlaylistTrack> playlistTracks;
 
     @Transient
     private LocalDateTime dateTime;

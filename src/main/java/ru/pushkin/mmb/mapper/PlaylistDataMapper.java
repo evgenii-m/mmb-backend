@@ -44,6 +44,7 @@ public class PlaylistDataMapper {
                 Track track = source.getTracks().getData().get(i);
                 TrackData trackData = trackDataMapper.map(track);
                 PlaylistTrack playlistTrack = new PlaylistTrack();
+                playlistTrack.setPlaylistData(result);
                 playlistTrack.setTrackData(trackData);
                 playlistTrack.setPosition(i);
                 Optional.ofNullable(track.getTime_add())

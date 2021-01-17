@@ -19,11 +19,11 @@ public class PlaylistTrack {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "playlist_id", insertable = false, updatable = false)
+    @JoinColumn(name = "playlist_id")
     private PlaylistData playlistData;
 
     @ManyToOne
-    @JoinColumn(name = "track_id", insertable = false, updatable = false)
+    @JoinColumn(name = "track_id")
     private TrackData trackData;
 
     @NotNull

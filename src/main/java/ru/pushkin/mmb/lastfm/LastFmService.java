@@ -158,6 +158,9 @@ public class LastFmService {
 
             self.fetchUserInfo(trackData, trackInfo, userId);
             self.fetchTagData(trackData, trackInfo.getTopTags());
+
+        } else {
+            trackData = trackDataRepository.save(trackData);
         }
 
         return trackData;
