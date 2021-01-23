@@ -20,4 +20,6 @@ public interface PlaylistDataRepository extends JpaRepository<PlaylistData, Inte
     Page<PlaylistData> findByUserIdAndTypeIn(String userId, Collection<PlaylistType> types, Pageable pageable);
 
     Page<PlaylistData> findByUserId(String userId, Pageable pageable);
+
+    PlaylistData findByIdAndUserId(Integer id, String userId);
 }

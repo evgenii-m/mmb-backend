@@ -10,6 +10,9 @@ import ru.pushkin.mmb.api.output.enumeration.PlaylistsFilterParam;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
 import ru.pushkin.mmb.api.output.response.PlaylistListResponse;
+import ru.pushkin.mmb.api.output.dto.PlaylistDto;
+import ru.pushkin.mmb.api.output.response.PlaylistResponse;
+import ru.pushkin.mmb.exception.PlaylistNotFoundException;
 import ru.pushkin.mmb.library.LibraryService;
 
 import java.time.LocalDateTime;
@@ -35,14 +38,26 @@ public class LibraryController {
     }
 
     @GetMapping(value = "/playlists", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PlaylistListResponse> getPlaylists(
+    public ResponseEntity<PlaylistListResponse> getPlaylistList(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "50") int size,
             @RequestParam(name = "filter", required = false, defaultValue = "ALL") PlaylistsFilterParam filter
     ) {
-        log.debug("getPlaylists (page: {}, size: {}, filter: {})", page, size, filter);
-        PlaylistListResponse response = libraryService.getPlaylists(page, size, filter);
+        log.debug("getPlaylistList (page: {}, size: {}, filter: {})", page, size, filter);
+        PlaylistListResponse response = libraryService.getPlaylistList(page, size, filter);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/playlists/{playlistId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PlaylistResponse> getPlaylist(@PathVariable(name = "playlistId") int playlistId) {
+        log.debug("getPlaylist (playlistId: {})", playlistId);
+        try {
+            PlaylistResponse response = libraryService.getPlaylist(playlistId);
+            return ResponseEntity.ok(response);
+        } catch (PlaylistNotFoundException e) {
+            log.error("getPlaylist error", e);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping(value = "/playlists/deezer")

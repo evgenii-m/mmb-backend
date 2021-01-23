@@ -3,6 +3,7 @@ package ru.pushkin.mmb.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import ru.pushkin.mmb.api.output.dto.PlaylistDto;
 import ru.pushkin.mmb.api.output.dto.PlaylistShortDto;
 import ru.pushkin.mmb.data.enumeration.PlaylistType;
 import ru.pushkin.mmb.data.model.library.PlaylistData;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -60,7 +62,7 @@ public class PlaylistDataMapper {
         return result;
     }
 
-    public PlaylistShortDto map(PlaylistData source) {
+    public PlaylistShortDto mapShort(PlaylistData source) {
         return PlaylistShortDto.builder()
                 .id(source.getId())
                 .title(source.getTitle())
@@ -71,5 +73,23 @@ public class PlaylistDataMapper {
                 .sourceUrl(source.getSourceUrl())
                 .tracksCount(source.getTracks().size())
                 .build();
+    }
+
+    public PlaylistDto map(PlaylistData source) {
+        PlaylistDto result = new PlaylistDto();
+        result.setId(source.getId());
+        result.setTitle(source.getTitle());
+        result.setCreationTime(source.getCreationTime());
+        result.setActive(source.isActive());
+        result.setSync(source.isSync());
+        result.setType(source.getType());
+        result.setSourceUrl(source.getSourceUrl());
+        result.setTracksCount(source.getTracks().size());
+        result.setTracks(
+            source.getTracks().stream()
+                    .map(trackDataMapper::map)
+                    .collect(Collectors.toList())
+        );
+        return result;
     }
 }

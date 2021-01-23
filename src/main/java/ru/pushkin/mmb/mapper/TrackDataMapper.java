@@ -2,6 +2,7 @@ package ru.pushkin.mmb.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
+import ru.pushkin.mmb.data.model.library.PlaylistTrack;
 import ru.pushkin.mmb.data.model.library.TrackData;
 import ru.pushkin.mmb.deezer.model.Track;
 import ru.pushkin.mmb.lastfm.model.Album;
@@ -77,4 +78,17 @@ public class TrackDataMapper {
     }
 
 
+    public TrackDto map(PlaylistTrack source) {
+        TrackData trackData = source.getTrackData();
+        return TrackDto.builder()
+                .uuid(trackData.getMbid())
+                .artist(trackData.getArtist())
+                .title(trackData.getTrackName())
+                .album(trackData.getAlbum())
+                .length(trackData.getLength())
+                .date(source.getAdded())
+                .sourceLink(trackData.getLastFmUrl())
+                .position(source.getPosition())
+                .build();
+    }
 }

@@ -2,13 +2,13 @@ package ru.pushkin.mmb.data.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.pushkin.mmb.data.model.library.UserTrackInfo;
+import ru.pushkin.mmb.data.model.library.UserTrackData;
 
 import java.util.Optional;
 
 
 @Repository
-public interface UserTrackInfoRepository extends JpaRepository<UserTrackInfo, Integer> {
+public interface UserTrackInfoRepository extends JpaRepository<UserTrackData, Integer> {
 
-    Optional<UserTrackInfo> findByTrackIdAndUserId(Integer trackId, String userId);
+    Optional<UserTrackData> findByTrackIdAndUserId(Integer trackId, String userId);
 }

@@ -12,7 +12,7 @@ import ru.pushkin.mmb.data.SessionsStorage;
 import ru.pushkin.mmb.data.enumeration.SessionDataCode;
 import ru.pushkin.mmb.data.model.library.TagData;
 import ru.pushkin.mmb.data.model.library.TrackData;
-import ru.pushkin.mmb.data.model.library.UserTrackInfo;
+import ru.pushkin.mmb.data.model.library.UserTrackData;
 import ru.pushkin.mmb.data.repository.TagDataRepository;
 import ru.pushkin.mmb.data.repository.TrackDataRepository;
 import ru.pushkin.mmb.data.repository.UserTrackInfoRepository;
@@ -153,6 +153,9 @@ public class LastFmService {
             if (StringUtils.isEmpty(trackData.getAlbum()) && trackInfo.getAlbum() != null) {
                 trackData.setAlbum(trackInfo.getAlbum().getTitle());
             }
+            if (StringUtils.isEmpty(trackData.getLastFmUrl()) && StringUtils.isNotEmpty(trackInfo.getUrl())) {
+                trackData.setLastFmUrl(trackInfo.getUrl());
+            }
 
             trackData = trackDataRepository.save(trackData);
 
@@ -193,12 +196,12 @@ public class LastFmService {
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     void fetchUserInfo(TrackData trackData, TrackInfo trackInfo, String userId) {
         if (trackInfo != null) {
-            Optional<UserTrackInfo> storedUserInfo = userTrackInfoRepository.findByTrackIdAndUserId(trackData.getId(), userId);
-            UserTrackInfo userInfo;
+            Optional<UserTrackData> storedUserInfo = userTrackInfoRepository.findByTrackIdAndUserId(trackData.getId(), userId);
+            UserTrackData userInfo;
             if (storedUserInfo.isPresent()) {
                 userInfo = storedUserInfo.get();
             } else {
-                userInfo = new UserTrackInfo();
+                userInfo = new UserTrackData();
                 userInfo.setTrackId(trackData.getId());
                 userInfo.setUserId(userId);
             }
@@ -207,7 +210,7 @@ public class LastFmService {
 
             userInfo = userTrackInfoRepository.save(userInfo);
 
-            trackData.setUserTrackInfo(userInfo);
+            trackData.setUserTrackData(userInfo);
         }
     }
 }

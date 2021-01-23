@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class TrackDto {
     private String uuid;
     private Number number;
+    private Integer position;
     @NotNull
     private String artist;
     @NotNull

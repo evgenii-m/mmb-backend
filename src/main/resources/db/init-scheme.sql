@@ -34,7 +34,7 @@ CREATE TABLE user_role
 DROP TABLE IF EXISTS playlist_track;
 DROP TABLE IF EXISTS track_tag;
 DROP TABLE IF EXISTS playlist_data;
-DROP TABLE IF EXISTS user_track_info;
+DROP TABLE IF EXISTS user_track_data;
 DROP TABLE IF EXISTS track_data;
 DROP TABLE IF EXISTS tag_data;
 
@@ -51,7 +51,7 @@ CREATE TABLE track_data
     deezer_url varchar(1000)
 );
 
-CREATE TABLE user_track_info
+CREATE TABLE user_track_data
 (
     id           SERIAL PRIMARY KEY,
     track_id     INTEGER       NOT NULL REFERENCES track_data,

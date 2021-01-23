@@ -14,16 +14,14 @@ import org.springframework.stereotype.Repository;
 import ru.pushkin.mmb.data.model.library.QTrackData;
 import ru.pushkin.mmb.data.model.library.QUserTrackInfo;
 import ru.pushkin.mmb.data.model.library.TrackData;
-import ru.pushkin.mmb.data.model.library.UserTrackInfo;
+import ru.pushkin.mmb.data.model.library.UserTrackData;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Repository
 public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport implements TrackDataCustomRepository {
@@ -46,7 +44,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
         List<TrackDataProjection> result = formQueryForFetchTrackDataWithUserInfo(whereClause, userId).fetch();
         return result.stream()
                 .map(entry -> {
-                    entry.getTrackData().setUserTrackInfo(entry.getTrackInfo());
+                    entry.getTrackData().setUserTrackData(entry.getTrackInfo());
                     return entry.getTrackData();
                 })
                 .collect(Collectors.toList());
@@ -58,7 +56,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
                 .or(QTrackData.trackData.title.eq(title));
         TrackDataProjection result = formQueryForFetchTrackDataWithUserInfo(whereClause, userId).fetchOne();
         if (result != null) {
-            result.getTrackData().setUserTrackInfo(result.getTrackInfo());
+            result.getTrackData().setUserTrackData(result.getTrackInfo());
             return Optional.of(result.getTrackData());
         } else {
             return Optional.empty();
@@ -70,7 +68,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
         BooleanExpression whereClause = QTrackData.trackData.mbid.eq(mbid);
         TrackDataProjection result = formQueryForFetchTrackDataWithUserInfo(whereClause, userId).fetchOne();
         if (result != null) {
-            result.getTrackData().setUserTrackInfo(result.getTrackInfo());
+            result.getTrackData().setUserTrackData(result.getTrackInfo());
             return Optional.of(result.getTrackData());
         } else {
             return Optional.empty();
@@ -82,7 +80,7 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
         BooleanExpression whereClause = QTrackData.trackData.title.eq(title);
         TrackDataProjection result = formQueryForFetchTrackDataWithUserInfo(whereClause, userId).fetchOne();
         if (result != null) {
-            result.getTrackData().setUserTrackInfo(result.getTrackInfo());
+            result.getTrackData().setUserTrackData(result.getTrackInfo());
             return Optional.of(result.getTrackData());
         } else {
             return Optional.empty();
@@ -109,6 +107,6 @@ public class TrackDataCustomRepositoryImpl extends QuerydslRepositorySupport imp
     @NoArgsConstructor
     public static class TrackDataProjection {
         private TrackData trackData;
-        private UserTrackInfo trackInfo;
+        private UserTrackData trackInfo;
     }
 }

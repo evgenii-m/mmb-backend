@@ -10,8 +10,8 @@ import javax.persistence.*;
 @AllArgsConstructor
 @ToString
 @Entity
-@Table(name = "user_track_info")
-public class UserTrackInfo {
+@Table(name = "user_track_data")
+public class UserTrackData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

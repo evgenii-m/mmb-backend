@@ -60,7 +60,7 @@ public class TrackData {
     private LocalDateTime dateTime;
 
     @Transient
-    private UserTrackInfo userTrackInfo;
+    private UserTrackData userTrackData;
 
 
     public void setTitle(String artist, String trackName) {
