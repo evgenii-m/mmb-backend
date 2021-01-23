@@ -17,13 +17,11 @@ import ru.pushkin.mmb.api.output.response.PlaylistResponse;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.Pageable;
 import ru.pushkin.mmb.data.enumeration.PlaylistType;
-import ru.pushkin.mmb.data.model.library.PlaylistData;
-import ru.pushkin.mmb.data.model.library.PlaylistTrack;
-import ru.pushkin.mmb.data.model.library.TrackData;
+import ru.pushkin.mmb.data.model.library.*;
 import ru.pushkin.mmb.data.repository.PlaylistDataRepository;
 import ru.pushkin.mmb.data.repository.TagDataRepository;
 import ru.pushkin.mmb.data.repository.TrackDataRepository;
-import ru.pushkin.mmb.data.repository.UserTrackInfoRepository;
+import ru.pushkin.mmb.data.repository.UserTrackDataRepository;
 import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.exception.PlaylistNotFoundException;
 import ru.pushkin.mmb.lastfm.LastFmService;
@@ -52,8 +50,6 @@ public class LibraryService {
     private final TrackDataMapper trackDataMapper;
     private final PlaylistDataMapper playlistDataMapper;
     private final TrackDataRepository trackDataRepository;
-    private final TagDataRepository tagDataRepository;
-    private final UserTrackInfoRepository userTrackInfoRepository;
     private final PlaylistDataRepository playlistDataRepository;
 
     private ExecutorService executorService;

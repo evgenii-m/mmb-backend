@@ -15,7 +15,7 @@ import ru.pushkin.mmb.data.model.library.TrackData;
 import ru.pushkin.mmb.data.model.library.UserTrackData;
 import ru.pushkin.mmb.data.repository.TagDataRepository;
 import ru.pushkin.mmb.data.repository.TrackDataRepository;
-import ru.pushkin.mmb.data.repository.UserTrackInfoRepository;
+import ru.pushkin.mmb.data.repository.UserTrackDataRepository;
 import ru.pushkin.mmb.lastfm.model.*;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
@@ -39,7 +39,7 @@ public class LastFmService {
     private final TrackDataMapper trackDataMapper;
     private final TrackDataRepository trackDataRepository;
     private final TagDataRepository tagDataRepository;
-    private final UserTrackInfoRepository userTrackInfoRepository;
+    private final UserTrackDataRepository userTrackDataRepository;
 
     @Autowired
     private LastFmService self;
@@ -127,7 +127,6 @@ public class LastFmService {
                 .orElse(Pageable.empty());
     }
 
-    @Transactional
     public TrackData fillTrackDataInfo(TrackData track, String userId) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
         TrackData trackData = track;
@@ -142,6 +141,7 @@ public class LastFmService {
                 if (foundedTrack.isPresent()) {
                     trackData = foundedTrack.get();
                     trackData.setDateTime(track.getDateTime());
+                    trackData.setTitle(track.getTitle());
                 }
             }
             if (trackData.getLength() == null) {
@@ -157,10 +157,13 @@ public class LastFmService {
                 trackData.setLastFmUrl(trackInfo.getUrl());
             }
 
+            Set<TagData> tags = self.fetchTagData(trackInfo.getTopTags());
+            trackData.setTags(tags);
+
             trackData = trackDataRepository.save(trackData);
 
-            self.fetchUserInfo(trackData, trackInfo, userId);
-            self.fetchTagData(trackData, trackInfo.getTopTags());
+            UserTrackData userTrackData = self.fetchUserInfo(trackInfo, trackData.getId(), userId);
+            trackData.setUserTrackData(userTrackData);
 
         } else {
             trackData = trackDataRepository.save(trackData);
@@ -170,47 +173,45 @@ public class LastFmService {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    void fetchTagData(TrackData trackData, TopTags topTags) {
+    Set<TagData> fetchTagData(TopTags topTags) {
+        Set<TagData> tags = new HashSet<>();
         if (topTags != null && !CollectionUtils.isEmpty(topTags.getTags())) {
-            Set<TagData> tags = new HashSet<>();
+            Set<String> tagNames = topTags.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+            Map<String, TagData> existedTagsMap = tagDataRepository.findByNameIn(tagNames).stream()
+                    .collect(Collectors.toMap(TagData::getName, t -> t));
+            Set<TagData> newTags = new HashSet<>();
             for (Tag tag : topTags.getTags()) {
-                TagData tagData = tagDataCache.get(tag.getName());
+                TagData tagData = existedTagsMap.get(tag.getName());
                 if (tagData == null) {
-                    Optional<TagData> foundedTag = tagDataRepository.findByName(tag.getName());
-                    if (foundedTag.isPresent()) {
-                        tagData = foundedTag.get();
-                    } else {
-                        TagData newTagData = new TagData(tag.getName(), tag.getUrl());
-                        tagData = tagDataRepository.save(newTagData);
-                    }
-                    tagDataCache.put(tag.getName(), tagData);
+                    TagData newTagData = new TagData(tag.getName(), tag.getUrl());
+                    newTags.add(newTagData);
+                    tagData = newTagData;
                 }
                 tags.add(tagData);
             }
-            if (!tags.isEmpty()) {
-                trackData.setTags(tags);
-            }
+            tagDataRepository.saveAll(newTags);
         }
+        return tags;
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    void fetchUserInfo(TrackData trackData, TrackInfo trackInfo, String userId) {
+    UserTrackData fetchUserInfo(TrackInfo trackInfo, Integer trackId, String userId) {
+        UserTrackData userTrackData = null;
         if (trackInfo != null) {
-            Optional<UserTrackData> storedUserInfo = userTrackInfoRepository.findByTrackIdAndUserId(trackData.getId(), userId);
-            UserTrackData userInfo;
+            Optional<UserTrackData> storedUserInfo = userTrackDataRepository.findByTrackIdAndUserId(trackId, userId);
             if (storedUserInfo.isPresent()) {
-                userInfo = storedUserInfo.get();
+                userTrackData = storedUserInfo.get();
             } else {
-                userInfo = new UserTrackData();
-                userInfo.setTrackId(trackData.getId());
-                userInfo.setUserId(userId);
+                userTrackData = new UserTrackData();
+                userTrackData.setUserId(userId);
+                userTrackData.setTrackId(trackId);
             }
-            userInfo.setFavorite(trackInfo.getUserloved());
-            userInfo.setListenCount(trackInfo.getUserplaycount());
+            userTrackData.setFavorite(trackInfo.getUserloved());
+            userTrackData.setListenCount(trackInfo.getUserplaycount());
 
-            userInfo = userTrackInfoRepository.save(userInfo);
-
-            trackData.setUserTrackData(userInfo);
+            userTrackData = userTrackDataRepository.save(userTrackData);
         }
+
+        return userTrackData;
     }
 }

@@ -45,6 +45,7 @@ public class TrackData {
     @Column(name = "deezer_url")
     private String deezerUrl;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(
             name = "track_tag",

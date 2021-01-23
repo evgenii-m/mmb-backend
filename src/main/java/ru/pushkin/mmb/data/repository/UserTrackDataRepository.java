@@ -8,7 +8,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface UserTrackInfoRepository extends JpaRepository<UserTrackData, Integer> {
+public interface UserTrackDataRepository extends JpaRepository<UserTrackData, Integer> {
 
     Optional<UserTrackData> findByTrackIdAndUserId(Integer trackId, String userId);
 }

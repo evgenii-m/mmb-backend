@@ -4,7 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -25,6 +25,15 @@ public class TagData {
 
     @NotNull
     private String url;
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "track_tag",
+            joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "track_id", referencedColumnName = "id")
+    )
+    private Set<TrackData> tracks;
 
     public TagData(@NotNull String name, @NotNull String url) {
         this.name = name;
