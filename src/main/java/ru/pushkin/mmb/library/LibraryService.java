@@ -2,10 +2,16 @@ package ru.pushkin.mmb.library;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.pushkin.mmb.api.output.dto.PlaylistShortDto;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
+import ru.pushkin.mmb.api.output.enumeration.PlaylistsFilterParam;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
+import ru.pushkin.mmb.api.output.response.PlaylistListResponse;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.Pageable;
 import ru.pushkin.mmb.data.enumeration.PlaylistType;
@@ -18,6 +24,7 @@ import ru.pushkin.mmb.data.repository.TrackDataRepository;
 import ru.pushkin.mmb.data.repository.UserTrackInfoRepository;
 import ru.pushkin.mmb.deezer.DeezerApiService;
 import ru.pushkin.mmb.lastfm.LastFmService;
+import ru.pushkin.mmb.mapper.PlaylistDataMapper;
 import ru.pushkin.mmb.mapper.TrackDataMapper;
 import ru.pushkin.mmb.security.SecurityHelper;
 
@@ -40,6 +47,7 @@ public class LibraryService {
     private final DeezerApiService deezerApiService;
     private final LastFmService lastFmService;
     private final TrackDataMapper trackDataMapper;
+    private final PlaylistDataMapper playlistDataMapper;
     private final TrackDataRepository trackDataRepository;
     private final TagDataRepository tagDataRepository;
     private final UserTrackInfoRepository userTrackInfoRepository;
@@ -59,6 +67,9 @@ public class LibraryService {
     }
 
 
+    /**
+     *
+     */
     public FavoriteTracksResponse findFavoriteTracks(Integer page, Integer size) {
         String userId = SecurityHelper.getUserIdFromToken();
 //        List<Track> deezerFavoriteTracks = deezerApiService.getFavoriteTracks(page, size);
@@ -70,6 +81,9 @@ public class LibraryService {
         return new FavoriteTracksResponse((int) favoriteTracks.getPage(), tracksData.size(), favoriteTracks.getTotalSize(), trackDtos);
     }
 
+    /**
+     *
+     */
     public ListeningHistoryResponse getUserListeningHistory(Integer page, Integer size, LocalDateTime from, LocalDateTime to) {
         Pageable<TrackData> response = loadTrackDataForUserListeningHistory(
                 SecurityHelper.getUserIdFromToken(), page, size, from, to
@@ -80,6 +94,9 @@ public class LibraryService {
         return new ListeningHistoryResponse(page, size, response.getTotalSize(), trackDtos);
     }
 
+    /**
+     *
+     */
     public Pageable<TrackData> loadTrackDataForUserListeningHistory(
             @NotNull String userId, @NotNull Integer page, @NotNull Integer size,
             LocalDateTime from, LocalDateTime to
@@ -139,6 +156,9 @@ public class LibraryService {
         return tracksData;
     }
 
+    /**
+     * @return fetched playlists count
+     */
     public long loadTrackDataForUserListeningHistory(@NotNull String userId, @NotNull LocalDateTime from, @NotNull LocalDateTime to) {
         int pageSize = 200;
 
@@ -165,6 +185,9 @@ public class LibraryService {
         return fetchedSize;
     }
 
+    /**
+     * @return fetched playlists count
+     */
     @Transactional
     public int loadPlaylistsForUserFromDeezer() {
         String userId = SecurityHelper.getUserIdFromToken();
@@ -175,8 +198,8 @@ public class LibraryService {
         log.debug("Obtained playlists from Deezer for user (userId: {}, count: {})", userId, totalPlaylists);
 
         Map<String, PlaylistData> playlistsMap = playlists.stream().collect(Collectors.toMap(PlaylistData::getSourceUrl, p -> p));
-        List<PlaylistData> existedPlaylists = playlistDataRepository.findAllBySourceUrlInAndTypeAndUserId(playlistsMap.keySet(),
-                PlaylistType.DEEZER, userId);
+        List<PlaylistData> existedPlaylists = playlistDataRepository.findBySourceUrlInAndUserIdAndType(playlistsMap.keySet(),
+                userId, PlaylistType.DEEZER);
         log.debug("Existed Deezer playlists fetched (userId: {}, count: {})", userId, existedPlaylists.size());
         existedPlaylists.forEach(p -> playlistsMap.remove(p.getSourceUrl()));
 
@@ -202,6 +225,29 @@ public class LibraryService {
         log.debug("Finish fetch playlists from Deezer for user (userId: {}, fetched size: {})",
                 userId, savedPlaylists.size());
         return savedPlaylists.size();
+    }
+
+    /**
+     *
+     */
+    public PlaylistListResponse getPlaylists(int page, int size, PlaylistsFilterParam filter) {
+        String userId = SecurityHelper.getUserIdFromToken();
+        log.debug("Start getPlaylists (userId: {})", userId);
+
+        Page<PlaylistData> playlistsPage = new PageImpl<>(List.of());
+        PageRequest pageable = PageRequest.of(page, size);
+        if (PlaylistsFilterParam.DEEZER.equals(filter)) {
+            playlistsPage = playlistDataRepository.findByUserIdAndType(userId, PlaylistType.DEEZER, pageable);
+        } else if (PlaylistsFilterParam.ALL.equals(filter)){
+            playlistsPage = playlistDataRepository.findByUserId(userId, pageable);
+        }
+
+        List<PlaylistShortDto> playlistDtos = playlistsPage.getContent().stream()
+                .map(playlistDataMapper::map)
+                .collect(Collectors.toList());
+
+        log.debug("Finish getPlaylists (userId: {})", userId);
+        return new PlaylistListResponse(page, size, playlistsPage.getTotalElements(), playlistDtos);
     }
 
 

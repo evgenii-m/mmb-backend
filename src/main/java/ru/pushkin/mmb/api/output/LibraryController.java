@@ -6,9 +6,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.pushkin.mmb.api.output.enumeration.PlaylistTypeParam;
+import ru.pushkin.mmb.api.output.enumeration.PlaylistsFilterParam;
 import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
+import ru.pushkin.mmb.api.output.response.PlaylistListResponse;
 import ru.pushkin.mmb.library.LibraryService;
 
 import java.time.LocalDateTime;
@@ -29,18 +30,19 @@ public class LibraryController {
             @RequestParam(name = "size", defaultValue = "50") int size
     ) {
         log.debug("getFavoriteTracks (page: {}, size: {})", page, size);
-        FavoriteTracksResponse favoriteTracks = libraryService.findFavoriteTracks(page, size);
-        return ResponseEntity.ok(favoriteTracks);
+        FavoriteTracksResponse response = libraryService.findFavoriteTracks(page, size);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping(value = "/playlists", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPlaylists(
+    public ResponseEntity<PlaylistListResponse> getPlaylists(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "50") int size,
-            @RequestParam(name = "type", required = false) PlaylistTypeParam playlistType
+            @RequestParam(name = "filter", required = false, defaultValue = "ALL") PlaylistsFilterParam filter
     ) {
-        log.debug("getListeningHistory (page: {}, size: {}, playlistType: {})", page, size, playlistType);
-        return ResponseEntity.ok("Success");
+        log.debug("getPlaylists (page: {}, size: {}, filter: {})", page, size, filter);
+        PlaylistListResponse response = libraryService.getPlaylists(page, size, filter);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "/playlists/deezer")

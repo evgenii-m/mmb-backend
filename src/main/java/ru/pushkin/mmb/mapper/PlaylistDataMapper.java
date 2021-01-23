@@ -3,6 +3,7 @@ package ru.pushkin.mmb.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import ru.pushkin.mmb.api.output.dto.PlaylistShortDto;
 import ru.pushkin.mmb.data.enumeration.PlaylistType;
 import ru.pushkin.mmb.data.model.library.PlaylistData;
 import ru.pushkin.mmb.data.model.library.PlaylistTrack;
@@ -57,5 +58,18 @@ public class PlaylistDataMapper {
         result.setTracks(playlistTracks);
 
         return result;
+    }
+
+    public PlaylistShortDto map(PlaylistData source) {
+        return PlaylistShortDto.builder()
+                .id(source.getId())
+                .title(source.getTitle())
+                .creationTime(source.getCreationTime())
+                .active(source.isActive())
+                .sync(source.isSync())
+                .type(source.getType())
+                .sourceUrl(source.getSourceUrl())
+                .tracksCount(source.getTracks().size())
+                .build();
     }
 }
