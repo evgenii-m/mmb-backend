@@ -40,15 +40,15 @@ DROP TABLE IF EXISTS tag_data;
 
 CREATE TABLE track_data
 (
-    id                    SERIAL PRIMARY KEY,
-    mbid                  varchar(100) UNIQUE,
-    title                 varchar(1000) NOT NULL UNIQUE,
-    track_name            varchar(500)  NOT NULL,
-    artist                varchar(500)  NOT NULL,
-    album                 varchar(500),
-    length                numeric,
-    lastfm_url            varchar(1000),
-    deezer_url            varchar(1000)
+    id         SERIAL PRIMARY KEY,
+    mbid       varchar(100) UNIQUE,
+    title      varchar(1000) NOT NULL UNIQUE,
+    track_name varchar(500)  NOT NULL,
+    artist     varchar(500)  NOT NULL,
+    album      varchar(500),
+    length     numeric,
+    lastfm_url varchar(1000),
+    deezer_url varchar(1000)
 );
 
 CREATE TABLE user_track_info
@@ -66,6 +66,7 @@ CREATE TABLE playlist_data
     title         varchar(1000) NOT NULL,
     description   varchar(10000),
     creation_time timestamp     not null,
+    user_id       varchar(1000) not null,
     active        boolean       not null default true,
     sync          boolean       not null default false,
     type          varchar(50)   not null,

@@ -22,7 +22,7 @@ import java.util.Optional;
 public class PlaylistDataMapper {
     private final TrackDataMapper trackDataMapper;
 
-    public PlaylistData map(Playlist source) {
+    public PlaylistData map(Playlist source, String userId) {
         LocalDateTime now = LocalDateTime.now();
 
         PlaylistData result = new PlaylistData();
@@ -31,6 +31,7 @@ public class PlaylistDataMapper {
         result.setActive(true);
         result.setType(PlaylistType.DEEZER);
         result.setSourceUrl(source.getLink());
+        result.setUserId(userId);
 
         LocalDateTime createTime = now;
         List<PlaylistTrack> playlistTracks = new ArrayList<>();

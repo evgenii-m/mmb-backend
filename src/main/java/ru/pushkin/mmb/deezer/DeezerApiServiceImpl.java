@@ -114,6 +114,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 
 	@Override
 	public List<PlaylistData> getPlaylists() throws DeezerApiErrorException {
+		String userId = SecurityHelper.getUserIdFromToken();
 		String currentAccessToken = getAccessToken();
 		try {
 			// get user playlists
@@ -130,7 +131,7 @@ public class DeezerApiServiceImpl implements DeezerApiService {
 			// get tracks for playlists
 			fetchPlaylistsTracks(playlists, currentAccessToken);
 			return playlists.stream()
-                    .map(playlistDataMapper::map)
+                    .map(p -> playlistDataMapper.map(p, userId))
                     .collect(Collectors.toList());
 
 		} catch (DeezerApiErrorException e) {

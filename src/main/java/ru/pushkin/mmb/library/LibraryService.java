@@ -8,6 +8,7 @@ import ru.pushkin.mmb.api.output.response.FavoriteTracksResponse;
 import ru.pushkin.mmb.api.output.response.ListeningHistoryResponse;
 import ru.pushkin.mmb.config.ServicePropertyConfig;
 import ru.pushkin.mmb.data.Pageable;
+import ru.pushkin.mmb.data.enumeration.PlaylistType;
 import ru.pushkin.mmb.data.model.library.PlaylistData;
 import ru.pushkin.mmb.data.model.library.PlaylistTrack;
 import ru.pushkin.mmb.data.model.library.TrackData;
@@ -70,7 +71,7 @@ public class LibraryService {
     }
 
     public ListeningHistoryResponse getUserListeningHistory(Integer page, Integer size, LocalDateTime from, LocalDateTime to) {
-        Pageable<TrackData> response = fetchTrackDataForUserListeningHistory(
+        Pageable<TrackData> response = loadTrackDataForUserListeningHistory(
                 SecurityHelper.getUserIdFromToken(), page, size, from, to
         );
         List<TrackDto> trackDtos = response.getData().stream()
@@ -79,7 +80,7 @@ public class LibraryService {
         return new ListeningHistoryResponse(page, size, response.getTotalSize(), trackDtos);
     }
 
-    public Pageable<TrackData> fetchTrackDataForUserListeningHistory(
+    public Pageable<TrackData> loadTrackDataForUserListeningHistory(
             @NotNull String userId, @NotNull Integer page, @NotNull Integer size,
             LocalDateTime from, LocalDateTime to
     ) {
@@ -138,7 +139,7 @@ public class LibraryService {
         return tracksData;
     }
 
-    public long fetchTrackDataForUserListeningHistory(@NotNull String userId, @NotNull LocalDateTime from, @NotNull LocalDateTime to) {
+    public long loadTrackDataForUserListeningHistory(@NotNull String userId, @NotNull LocalDateTime from, @NotNull LocalDateTime to) {
         int pageSize = 200;
 
         log.debug("Start fetch listening history for user (userId: {}, from: {}, to: {}, page size: {})", userId, from, to, pageSize);
@@ -146,7 +147,7 @@ public class LibraryService {
         long totalPages = 1;
         long fetchedSize = 0;
         for (int page = 0; page < totalPages; page++) {
-            Pageable<TrackData> response = fetchTrackDataForUserListeningHistory(userId, page, pageSize, from, to);
+            Pageable<TrackData> response = loadTrackDataForUserListeningHistory(userId, page, pageSize, from, to);
             totalPages = response.getTotalPages();
             long totalSize = response.getTotalSize();
             long responseSize = response.getSize();
@@ -165,13 +166,21 @@ public class LibraryService {
     }
 
     @Transactional
-    public int fetchPlaylistsForUserFromDeezer() {
+    public int loadPlaylistsForUserFromDeezer() {
         String userId = SecurityHelper.getUserIdFromToken();
         log.debug("Start fetch playlists from Deezer for user (userId: {})", userId);
 
         List<PlaylistData> playlists = deezerApiService.getPlaylists();
         int totalPlaylists = playlists.size();
         log.debug("Obtained playlists from Deezer for user (userId: {}, count: {})", userId, totalPlaylists);
+
+        Map<String, PlaylistData> playlistsMap = playlists.stream().collect(Collectors.toMap(PlaylistData::getSourceUrl, p -> p));
+        List<PlaylistData> existedPlaylists = playlistDataRepository.findAllBySourceUrlInAndTypeAndUserId(playlistsMap.keySet(),
+                PlaylistType.DEEZER, userId);
+        log.debug("Existed Deezer playlists fetched (userId: {}, count: {})", userId, existedPlaylists.size());
+        existedPlaylists.forEach(p -> playlistsMap.remove(p.getSourceUrl()));
+
+        playlists = playlistsMap.values().stream().collect(Collectors.toList());
         for (PlaylistData playlist : playlists) {
             Set<TrackData> trackSet = new HashSet<>();
             Map<String, List<PlaylistTrack>> tracksMap = new HashMap<>();

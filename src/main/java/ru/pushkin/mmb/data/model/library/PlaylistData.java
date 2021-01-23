@@ -29,6 +29,10 @@ public class PlaylistData {
     private LocalDateTime creationTime;
 
     @NotNull
+    @Column(name = "user_id")
+    private String userId;
+
+    @NotNull
     private boolean active;
 
     @NotNull
