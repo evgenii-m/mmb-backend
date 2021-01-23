@@ -40,7 +40,7 @@ public class LibraryController {
     }
 
     @PostMapping(value = "/playlists/deezer")
-    public ResponseEntity fetchPlaylistsFromDeezer() {
+    public ResponseEntity loadPlaylistsFromDeezer() {
         libraryService.fetchPlaylistsForUserFromDeezer();
         return ResponseEntity.ok("Success");
     }
@@ -57,5 +57,16 @@ public class LibraryController {
         return ResponseEntity.ok(libraryService.getUserListeningHistory(page, size, from, to));
     }
 
+    @PostMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> loadListeningHistoryFromLastFm(
+            @RequestParam(name = "userId") String userId,
+            @RequestParam(name = "from")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(name = "to")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        long totalSize = libraryService.fetchTrackDataForUserListeningHistory(userId, from, to);
+        return ResponseEntity
+                .ok("Status - OK, fetched data size = " + totalSize);
+    }
 
 }

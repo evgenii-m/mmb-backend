@@ -26,17 +26,4 @@ public class AdminController {
         return ResponseEntity
                 .ok("Status - OK");
     }
-
-    // TODO: add security check for ADMIN
-    @PostMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> fetchUserDataFromLastFm(
-            @RequestParam(name = "userId") String userId,
-            @RequestParam(name = "from")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(name = "to")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
-        long totalSize = libraryService.fetchTrackDataForUserListeningHistory(userId, from, to);
-        return ResponseEntity
-                .ok("Status - OK, fetched data size = " + totalSize);
-    }
 }
