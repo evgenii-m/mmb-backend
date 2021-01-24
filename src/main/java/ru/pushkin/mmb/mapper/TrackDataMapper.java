@@ -4,15 +4,9 @@ import org.springframework.stereotype.Component;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.data.model.library.PlaylistTrack;
 import ru.pushkin.mmb.data.model.library.TrackData;
-import ru.pushkin.mmb.deezer.model.Track;
-import ru.pushkin.mmb.lastfm.model.Album;
-import ru.pushkin.mmb.lastfm.model.AlbumShort;
 import ru.pushkin.mmb.utils.DateTimeUtils;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.TimeZone;
 
 
 @Component
@@ -67,9 +61,10 @@ public class TrackDataMapper {
 
     public TrackDto map(TrackData source) {
         return TrackDto.builder()
-                .uuid(source.getMbid())
+                .id(source.getId())
+                .mbid(source.getMbid())
                 .artist(source.getArtist())
-                .title(source.getTrackName())
+                .trackName(source.getTrackName())
                 .album(source.getAlbum())
                 .length(source.getLength())
                 .date(source.getDateTime())
@@ -81,9 +76,10 @@ public class TrackDataMapper {
     public TrackDto map(PlaylistTrack source) {
         TrackData trackData = source.getTrackData();
         return TrackDto.builder()
-                .uuid(trackData.getMbid())
+                .id(trackData.getId())
+                .mbid(trackData.getMbid())
                 .artist(trackData.getArtist())
-                .title(trackData.getTrackName())
+                .trackName(trackData.getTrackName())
                 .album(trackData.getAlbum())
                 .length(trackData.getLength())
                 .date(source.getAdded())

@@ -9,13 +9,14 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class TrackDto {
-    private String uuid;
+    private int id;
+    private String mbid;
     private Number number;
     private Integer position;
     @NotNull
     private String artist;
     @NotNull
-    private String title;
+    private String trackName;
     private String album;
     @NotNull
     private long length;

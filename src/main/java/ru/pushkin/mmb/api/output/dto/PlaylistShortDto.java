@@ -17,6 +17,7 @@ public class PlaylistShortDto {
     private int id;
     @NotNull
     private String title;
+    private String description;
     @NotNull
     private LocalDateTime creationTime;
     private boolean active;

@@ -66,6 +66,7 @@ public class PlaylistDataMapper {
         return PlaylistShortDto.builder()
                 .id(source.getId())
                 .title(source.getTitle())
+                .description(source.getDescription())
                 .creationTime(source.getCreationTime())
                 .active(source.isActive())
                 .sync(source.isSync())
@@ -79,6 +80,7 @@ public class PlaylistDataMapper {
         PlaylistDto result = new PlaylistDto();
         result.setId(source.getId());
         result.setTitle(source.getTitle());
+        result.setDescription(source.getDescription());
         result.setCreationTime(source.getCreationTime());
         result.setActive(source.isActive());
         result.setSync(source.isSync());
