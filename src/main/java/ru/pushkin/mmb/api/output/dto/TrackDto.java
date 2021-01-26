@@ -19,7 +19,7 @@ public class TrackDto {
     private String trackName;
     private String album;
     @NotNull
-    private long length;
+    private Long length;
     @NotNull
     private LocalDateTime date;
     private String sourceLink;

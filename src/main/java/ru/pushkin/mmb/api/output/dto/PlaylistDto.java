@@ -15,9 +15,9 @@ import java.util.List;
 public class PlaylistDto extends PlaylistShortDto {
     List<TrackDto> tracks;
 
-    public PlaylistDto(int id, @NotNull String title, @NotNull LocalDateTime creationTime, boolean active, boolean sync,
+    public PlaylistDto(int id, @NotNull String title, String description, @NotNull LocalDateTime creationTime, boolean active, boolean sync,
                        @NotNull PlaylistType type, String sourceUrl, int tracksCount, List<TrackDto> tracks) {
-        super(id, title, creationTime, active, sync, type, sourceUrl, tracksCount);
+        super(id, title, description, creationTime, active, sync, type, sourceUrl, tracksCount);
         this.tracks = tracks;
     }
 }

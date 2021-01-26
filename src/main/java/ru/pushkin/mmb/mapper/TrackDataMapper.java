@@ -1,5 +1,6 @@
 package ru.pushkin.mmb.mapper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.pushkin.mmb.api.output.dto.TrackDto;
 import ru.pushkin.mmb.data.model.library.PlaylistTrack;
@@ -20,6 +21,7 @@ public class TrackDataMapper {
         Optional.ofNullable(source.getAlbum())
                 .ifPresent(album -> result.setAlbum(album.getName()));
         Optional.ofNullable(source.getMbid())
+                .filter(StringUtils::isNotEmpty)
                 .ifPresent(result::setMbid);
         Optional.ofNullable(source.getDate())
                 .ifPresent(date -> result.setDateTime(DateTimeUtils.toLocalDateTime(source.getDate().getUts())));

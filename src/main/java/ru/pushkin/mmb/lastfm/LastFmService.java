@@ -129,10 +129,14 @@ public class LastFmService {
 
     public TrackData fillTrackDataInfo(TrackData track, String userId) {
         String lastFmUsername = sessionsStorage.getLastFmUsername(userId);
-        TrackData trackData = track;
         TrackInfo trackInfo = lastFmApiProvider.trackGetInfo(null, track.getTrackName(), track.getArtist(), lastFmUsername, false)
                 .orElse(null);
+        return self.fetchTrackData(track, trackInfo, userId);
+    }
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    synchronized TrackData fetchTrackData(TrackData track, TrackInfo trackInfo, String userId) {
+        TrackData trackData = track;
         if (trackInfo != null) {
             if (trackData.getId() == null) {
                 Optional<TrackData> foundedTrack = StringUtils.isNotEmpty(trackInfo.getMbid()) ?
@@ -173,7 +177,7 @@ public class LastFmService {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    Set<TagData> fetchTagData(TopTags topTags) {
+    synchronized Set<TagData> fetchTagData(TopTags topTags) {
         Set<TagData> tags = new HashSet<>();
         if (topTags != null && !CollectionUtils.isEmpty(topTags.getTags())) {
             Set<String> tagNames = topTags.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
@@ -195,7 +199,7 @@ public class LastFmService {
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    UserTrackData fetchUserInfo(TrackInfo trackInfo, Integer trackId, String userId) {
+    synchronized UserTrackData fetchUserInfo(TrackInfo trackInfo, Integer trackId, String userId) {
         UserTrackData userTrackData = null;
         if (trackInfo != null) {
             Optional<UserTrackData> storedUserInfo = userTrackDataRepository.findByTrackIdAndUserId(trackId, userId);

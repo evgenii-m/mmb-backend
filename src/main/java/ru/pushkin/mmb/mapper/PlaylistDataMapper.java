@@ -89,6 +89,7 @@ public class PlaylistDataMapper {
         result.setTracksCount(source.getTracks().size());
         result.setTracks(
             source.getTracks().stream()
+                    .sorted(Comparator.comparing(PlaylistTrack::getPosition))
                     .map(trackDataMapper::map)
                     .collect(Collectors.toList())
         );
